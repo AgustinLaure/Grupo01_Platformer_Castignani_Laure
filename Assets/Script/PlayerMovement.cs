@@ -1,40 +1,38 @@
-using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    //Va en fsm
-
-    enum STATE
-    {
-        None,
-        Idle,
-        Walk,
-        Air,
-        Run
-    }
-
-    [SerializeField] private STATE state;
-
     private bool canJump = false;
     private bool tryJump = false;
+    private bool isRunning = false;
 
     [SerializeField] private float acceleration;
     [SerializeField] private float jumpAcceleration;
     [SerializeField] private Rigidbody2D rb;
+    [SerializeField] private LayerMask environmentLayer;
+
     private const ForceMode2D forceMode = ForceMode2D.Impulse;
+
+    [SerializeField] private KeyCode jumpKey;
+    [SerializeField] private KeyCode runKey;
 
     [SerializeField] private float fallTerminalVelocity;
     [SerializeField] private float walkTerminalVelocity;
     [SerializeField] private float runTerminalVelocity;
+    
+    [SerializeField] private GameObject groundCheck;
+    [SerializeField] private Vector2 groundCheckSize;
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && canJump)
+        canJump = Physics2D.OverlapBox(groundCheck.transform.position, groundCheckSize, transform.rotation.eulerAngles.z, environmentLayer);
+        
+        if (Input.GetButtonDown("Jump") && canJump)
         {
             tryJump = true;
-            canJump = false;
         }
+
+       isRunning = Input.GetKeyDown(runKey);
     }
 
     private void FixedUpdate()
@@ -55,7 +53,7 @@ public class PlayerMovement : MonoBehaviour
     private void ClampVelocity()
     {
         Vector2 clampValue = new Vector2(
-            clampValue.x = state == STATE.Run ? clampValue.x = runTerminalVelocity : clampValue.x = walkTerminalVelocity,
+            clampValue.x = isRunning ? clampValue.x = runTerminalVelocity : clampValue.x = walkTerminalVelocity,
             fallTerminalVelocity);
 
         rb.linearVelocity = new Vector2(
@@ -63,9 +61,9 @@ public class PlayerMovement : MonoBehaviour
             Mathf.Clamp(rb.linearVelocity.y, -clampValue.y, float.MaxValue));
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void OnDrawGizmos()
     {
-        canJump = true;
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(groundCheck.transform.position, groundCheckSize);
     }
-
 }
