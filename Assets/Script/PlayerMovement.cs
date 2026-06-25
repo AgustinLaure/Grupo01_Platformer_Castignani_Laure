@@ -1,3 +1,4 @@
+using System.Runtime.CompilerServices;
 using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
@@ -9,12 +10,17 @@ public class PlayerMovement : MonoBehaviour
         None,
         Idle,
         Walk,
+        Air,
         Run
     }
 
     [SerializeField] private STATE state;
 
+    private bool canJump = false;
+    private bool tryJump = false;
+
     [SerializeField] private float acceleration;
+    [SerializeField] private float jumpAcceleration;
     [SerializeField] private Rigidbody2D rb;
     private const ForceMode2D forceMode = ForceMode2D.Impulse;
 
@@ -22,11 +28,26 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private float walkTerminalVelocity;
     [SerializeField] private float runTerminalVelocity;
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && canJump)
+        {
+            tryJump = true;
+            canJump = false;
+        }
+    }
+
     private void FixedUpdate()
     {
-        Vector2 nextDir = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+        Vector2 moveDir = new Vector2(Input.GetAxis("Horizontal") * acceleration, 0f);
 
-        rb.AddForce(nextDir * acceleration, forceMode);
+        if (tryJump)
+        {
+            moveDir.y = jumpAcceleration;
+            tryJump = false;
+        }
+
+        rb.AddForce(moveDir, forceMode);
 
         ClampVelocity();
     }
@@ -39,6 +60,12 @@ public class PlayerMovement : MonoBehaviour
 
         rb.linearVelocity = new Vector2(
             Mathf.Clamp(rb.linearVelocity.x, -clampValue.x, clampValue.x),
-            Mathf.Clamp(rb.linearVelocity.y, -clampValue.y, clampValue.y));
+            Mathf.Clamp(rb.linearVelocity.y, -clampValue.y, float.MaxValue));
     }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        canJump = true;
+    }
+
 }
