@@ -40,6 +40,30 @@ public class PlayerController : MonoBehaviour
     private float horizontalAxis = 0f;
     private float prevHorizontalAxis = 0f;
 
+    public bool GetIsMoving 
+    { 
+        get 
+        {
+            return horizontalAxis > epsilon || horizontalAxis < -epsilon; 
+        } 
+    }
+
+    public bool GetIsWalking
+    {
+        get
+        {
+            return GetIsMoving && !Input.GetButton("Run");
+        }
+    }
+
+    public bool GetIsRunning
+    {
+        get
+        {
+            return Input.GetButton("Run");
+        }
+    }
+
     private void Update()
     {
         horizontalAxis = Input.GetAxisRaw("Horizontal");
@@ -60,13 +84,13 @@ public class PlayerController : MonoBehaviour
         {
             case MoveState.None:
 
-                if (horizontalAxis > epsilon || horizontalAxis < -epsilon)
+                if (GetIsMoving)
                 {
-                    if (Input.GetButton("Run"))
+                    if (GetIsRunning)
                     {
                         moveState = MoveState.Running;
                     }
-                    else
+                    else if (GetIsWalking)
                     {
                         moveState = MoveState.Walking;
                     }
@@ -85,11 +109,11 @@ public class PlayerController : MonoBehaviour
                     acceleration = walkAcceleration;
                 }
 
-                if (horizontalAxis < epsilon && horizontalAxis > -epsilon)
+                if (!GetIsMoving)
                 {
                     moveState = MoveState.None;
                 }
-                else if (Input.GetButton("Run") && isGrounded)
+                else if (GetIsRunning)
                 {
                     moveState = MoveState.Running;
                 }
@@ -107,16 +131,13 @@ public class PlayerController : MonoBehaviour
                     acceleration = runAcceleration;
                 }
 
-                if (horizontalAxis < epsilon && horizontalAxis > -epsilon)
+                if (!GetIsMoving)
                 {
                     moveState = MoveState.None;
                 }
-                else
+                else if (GetIsWalking)
                 {
-                    if (!Input.GetButton("Run") && isGrounded)
-                    {
-                        moveState = MoveState.Walking;
-                    }
+                    moveState = MoveState.Walking;
                 }
 
                 break;
