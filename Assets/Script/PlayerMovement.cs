@@ -1,6 +1,4 @@
-using System.Security.Cryptography;
 using UnityEngine;
-using UnityEngine.XR;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -155,10 +153,6 @@ public class PlayerMovement : MonoBehaviour
         }
 
         prevHorizontalAxis = horizontalAxis;
-
-        //Debug.Log(rb.linearVelocityX);
-        //Debug.Log(" ");
-        //Debug.Log(terminalVelocity);
     }
 
     private void AddStopForce()
