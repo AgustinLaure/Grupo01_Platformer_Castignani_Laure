@@ -64,6 +64,14 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public bool GetIsAttacking
+    {
+        get
+        {
+            return Input.GetButton("Attack");
+        }
+    }
+
     private void Update()
     {
         horizontalAxis = Input.GetAxisRaw("Horizontal");
