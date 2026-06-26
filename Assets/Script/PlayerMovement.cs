@@ -1,64 +1,175 @@
+using System.Security.Cryptography;
 using UnityEngine;
+using UnityEngine.XR;
 
 public class PlayerMovement : MonoBehaviour
 {
-    private bool canJump = false;
+    enum MoveState
+    {
+        None,
+        Walking,
+        Running,
+    }
+
+    private const float epsilon = 1e-06f;
+
+    private bool isGrounded = false;
     private bool tryJump = false;
-    private bool isRunning = false;
+
+    private MoveState moveState = MoveState.None;
+    private MoveState prevMoveState = MoveState.None;
 
     [SerializeField] private float acceleration;
-    [SerializeField] private float jumpAcceleration;
+    [SerializeField] private float walkAcceleration;
+    [SerializeField] private float runAcceleration;
+
+    [SerializeField] private float jumpImpulse;
+
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private LayerMask environmentLayer;
 
-    private const ForceMode2D forceMode = ForceMode2D.Impulse;
+    private const ForceMode2D horizontalMoveForce = ForceMode2D.Force;
+    private const ForceMode2D jumpMoveForce = ForceMode2D.Impulse;
 
-    [SerializeField] private KeyCode jumpKey;
-    [SerializeField] private KeyCode runKey;
+    private float terminalVelocity = 0f;
 
-    [SerializeField] private float fallTerminalVelocity;
     [SerializeField] private float walkTerminalVelocity;
     [SerializeField] private float runTerminalVelocity;
-    
+
     [SerializeField] private GameObject groundCheck;
     [SerializeField] private Vector2 groundCheckSize;
 
+    private float horizontalAxis = 0f;
+    private float prevHorizontalAxis = 0f;
+
     private void Update()
     {
-        canJump = Physics2D.OverlapBox(groundCheck.transform.position, groundCheckSize, transform.rotation.eulerAngles.z, environmentLayer);
-        
-        if (Input.GetButtonDown("Jump") && canJump)
+        horizontalAxis = Input.GetAxisRaw("Horizontal");
+
+        UpdateMoveState();
+
+        isGrounded = Physics2D.OverlapBox(groundCheck.transform.position, groundCheckSize, transform.rotation.eulerAngles.z, environmentLayer);
+
+        if (Input.GetButtonDown("Jump") && isGrounded)
         {
             tryJump = true;
         }
+    }
 
-       isRunning = Input.GetKeyDown(runKey);
+    private void UpdateMoveState()
+    {
+        switch (moveState)
+        {
+            case MoveState.None:
+
+                if (horizontalAxis > epsilon || horizontalAxis < -epsilon)
+                {
+                    if (Input.GetButton("Run"))
+                    {
+                        moveState = MoveState.Running;
+                    }
+                    else
+                    {
+                        moveState = MoveState.Walking;
+                    }
+                }
+
+                break;
+
+            case MoveState.Walking:
+
+                if (moveState != prevMoveState)
+                {
+                    prevMoveState = moveState;
+
+                    moveState = MoveState.Walking;
+                    terminalVelocity = walkTerminalVelocity;
+                    acceleration = walkAcceleration;
+                }
+
+                if (horizontalAxis < epsilon && horizontalAxis > -epsilon)
+                {
+                    moveState = MoveState.None;
+                }
+                else if (Input.GetButton("Run") && isGrounded)
+                {
+                    moveState = MoveState.Running;
+                }
+
+                break;
+
+            case MoveState.Running:
+
+                if (moveState != prevMoveState)
+                {
+                    prevMoveState = moveState;
+
+                    moveState = MoveState.Running;
+                    terminalVelocity = runTerminalVelocity;
+                    acceleration = runAcceleration;
+                }
+
+                if (horizontalAxis < epsilon && horizontalAxis > -epsilon)
+                {
+                    moveState = MoveState.None;
+                }
+                else
+                {
+                    if (!Input.GetButton("Run") && isGrounded)
+                    {
+                        moveState = MoveState.Walking;
+                    }
+                }
+
+                break;
+
+            default:
+                break;
+        }
     }
 
     private void FixedUpdate()
     {
-        Vector2 moveDir = new Vector2(Input.GetAxis("Horizontal") * acceleration, 0f);
+        if (Mathf.Abs(horizontalAxis) < epsilon &&
+            Mathf.Abs(horizontalAxis - prevHorizontalAxis) > epsilon)
+        {
+            AddStopForce();
+        }
+        else
+        {
+            float horizontalMove = horizontalAxis * acceleration;
+
+            float velocityDist = terminalVelocity - rb.linearVelocityX * Mathf.Sign(horizontalMove);
+
+            float maxPossibleAccel = (velocityDist * rb.mass) / Time.fixedDeltaTime;
+
+            horizontalMove = Mathf.Clamp(Mathf.Abs(horizontalMove), 0f, maxPossibleAccel) * Mathf.Sign(horizontalMove);
+
+            rb.AddForce(new Vector2(horizontalMove, 0f), horizontalMoveForce);
+        }
 
         if (tryJump)
         {
-            moveDir.y = jumpAcceleration;
+            rb.AddForce(new Vector2(0f, jumpImpulse), jumpMoveForce);
             tryJump = false;
         }
 
-        rb.AddForce(moveDir, forceMode);
+        prevHorizontalAxis = horizontalAxis;
 
-        ClampVelocity();
+        //Debug.Log(rb.linearVelocityX);
+        //Debug.Log(" ");
+        //Debug.Log(terminalVelocity);
     }
 
-    private void ClampVelocity()
+    private void AddStopForce()
     {
-        Vector2 clampValue = new Vector2(
-            clampValue.x = isRunning ? clampValue.x = runTerminalVelocity : clampValue.x = walkTerminalVelocity,
-            fallTerminalVelocity);
+        float velocityClamp = 0f;
 
-        rb.linearVelocity = new Vector2(
-            Mathf.Clamp(rb.linearVelocity.x, -clampValue.x, clampValue.x),
-            Mathf.Clamp(rb.linearVelocity.y, -clampValue.y, float.MaxValue));
+        velocityClamp = moveState == MoveState.Running ? runTerminalVelocity : walkTerminalVelocity;
+
+        velocityClamp = Mathf.Min(Mathf.Abs(rb.linearVelocityX), velocityClamp);
+
+        rb.linearVelocityX -= velocityClamp * Mathf.Sign(rb.linearVelocityX);
     }
 
     private void OnDrawGizmos()

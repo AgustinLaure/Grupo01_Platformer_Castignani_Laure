@@ -211,16 +211,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 864985400dd251e4a826a747d3f73d73, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
-  acceleration: 1
-  jumpAcceleration: 8
+  acceleration: 2
+  walkAcceleration: 80
+  runAcceleration: 100
+  jumpImpulse: 8
   rb: {fileID: -2057887317093938310}
   environmentLayer:
     serializedVersion: 2
     m_Bits: 64
-  jumpKey: 32
-  runKey: 304
-  fallTerminalVelocity: 50
-  walkTerminalVelocity: 3.4
-  runTerminalVelocity: 5.6
+  walkTerminalVelocity: 4
+  runTerminalVelocity: 6
   groundCheck: {fileID: 950416432635453081}
   groundCheckSize: {x: 0.75, y: 0.07}
