@@ -157,6 +157,7 @@ GameObject:
   - component: {fileID: 6033697373003829020}
   - component: {fileID: -2057887317093938310}
   - component: {fileID: 8038965960095469775}
+  - component: {fileID: 2885574476845857708}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -278,3 +279,16 @@ MonoBehaviour:
   runTerminalVelocity: 6
   groundCheck: {fileID: 950416432635453081}
   groundCheckSize: {x: 0.75, y: 0.07}
+--- !u!114 &2885574476845857708
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3342596042176603546}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: da39be2de4faf194bbe75b21eb5f8832, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimator
+  playerController: {fileID: 8038965960095469775}

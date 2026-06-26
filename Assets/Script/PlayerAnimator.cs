@@ -14,6 +14,8 @@ public class PlayerAnimator : MonoBehaviour
         Death
     }
 
+    [SerializeField] PlayerController playerController;
+
     private State currentState = State.Idle;
     private State prevState = State.Idle;
     private void Update()
