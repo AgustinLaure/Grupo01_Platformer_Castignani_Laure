@@ -7,12 +7,9 @@ public class FSM
 
     private Dictionary<Type, IState> statesDictionary = new Dictionary<Type, IState>();
 
-    public FSM(IState[] states)
+    public FSM(Dictionary<Type, IState> states)
     {
-        foreach (IState state in states)
-        {
-            statesDictionary.Add(state.GetType(), state);
-        }
+        statesDictionary = states;
     }
 
     public void Update()

@@ -44,9 +44,11 @@ public class PlayerController : MonoBehaviour
     private float horizontalAxis = 0f;
     private float prevHorizontalAxis = 0f;
 
-    private bool getIsMoving { get { return horizontalAxis > epsilon || horizontalAxis < -epsilon; } }
-    private bool getIsWalking { get { return getIsMoving && !Input.GetButton("Run"); } }
-    private bool getIsRunning { get { return Input.GetButton("Run"); } }
+    public bool GetIsGrounded { get { return isGrounded; } }
+    public bool GetIsFalling { get { return rb.linearVelocityY < 0f; } }
+    public bool GetIsMoving { get { return horizontalAxis > epsilon || horizontalAxis < -epsilon; } }
+    public bool GetIsWalking { get { return GetIsMoving && !Input.GetButton("Run"); } }
+    public bool GetIsRunning { get { return Input.GetButton("Run"); } }
 
     private void Update()
     {
@@ -74,13 +76,13 @@ public class PlayerController : MonoBehaviour
         {
             case MoveState.None:
 
-                if (getIsMoving)
+                if (GetIsMoving)
                 {
-                    if (getIsRunning)
+                    if (GetIsRunning)
                     {
                         moveState = MoveState.Running;
                     }
-                    else if (getIsWalking)
+                    else if (GetIsWalking)
                     {
                         moveState = MoveState.Walking;
                     }
@@ -99,11 +101,11 @@ public class PlayerController : MonoBehaviour
                     acceleration = walkAcceleration;
                 }
 
-                if (!getIsMoving)
+                if (!GetIsMoving)
                 {
                     moveState = MoveState.None;
                 }
-                else if (getIsRunning)
+                else if (GetIsRunning)
                 {
                     moveState = MoveState.Running;
                 }
@@ -121,11 +123,11 @@ public class PlayerController : MonoBehaviour
                     acceleration = runAcceleration;
                 }
 
-                if (!getIsMoving)
+                if (!GetIsMoving)
                 {
                     moveState = MoveState.None;
                 }
-                else if (getIsWalking)
+                else if (GetIsWalking)
                 {
                     moveState = MoveState.Walking;
                 }

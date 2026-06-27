@@ -2,10 +2,11 @@ using System.Collections.Generic;
 using System;
 using UnityEngine;
 using NUnit.Framework.Interfaces;
+using Unity.VisualScripting;
 
 public class PlayerAnimator : MonoBehaviour
 {
-    [SerializeField] private PlayerController controller;
+    [SerializeField] private PlayerController playerController;
     [SerializeField] private Rigidbody2D rb2d;
     [SerializeField] private Animator animator;
     [SerializeField] private GameObject player;
@@ -14,18 +15,24 @@ public class PlayerAnimator : MonoBehaviour
 
     private FSM fsm;
 
-    private Dictionary<Type, IState> states = new Dictionary<Type, IState>()
-    {
-        //[typeof(WalkState)] = new WalkState()
-    };
+    private Dictionary<Type, IState> states;
 
     private void Start()
     {
-       
+        IdleState idleState = new IdleState(this);
+        playerController.OnPlayerAttack += idleState.OnAttack;
+        playerController.OnPlayerJump += idleState.OnJump;
 
-       // toAddStates[]
+        AttackState attackState = new AttackState(this);
+        //Ondie
 
-        //stateMachine = new FSM(toAddStates);
+        states = new Dictionary<Type, IState>()
+        {
+            [typeof(IdleState)] = idleState,
+            [typeof(AttackState)] = attackState,
+        };
+
+        fsm = new FSM(states);
     }
 
     private void Update()
@@ -33,9 +40,20 @@ public class PlayerAnimator : MonoBehaviour
         fsm.Update();
     }
 
+    private bool CurrentAnimationEnded()
+    {
+        AnimatorStateInfo animatorInfo = animator.GetCurrentAnimatorStateInfo(0);
+
+        return animatorInfo.normalizedTime >= 1f;
+    }
+
     private void OnDestroy()
     {
-        
+        IState auxState;
+
+        states.TryGetValue(typeof(IdleState), out auxState);
+        playerController.OnPlayerAttack -= ((IdleState)auxState).OnAttack;
+        playerController.OnPlayerJump -= ((IdleState)auxState).OnJump;
     }
 
     private class IdleState : IState
@@ -53,7 +71,17 @@ public class PlayerAnimator : MonoBehaviour
 
         public void Update()
         {
-            if (playerAnimator.rb2d.linearVelocityY < 0f)
+            if (playerAnimator.playerController.GetIsWalking
+                && playerAnimator.playerController.GetIsGrounded)
+            {
+                playerAnimator.fsm.TryChange<IdleState>(typeof(WalkState));
+            }
+            else if (playerAnimator.playerController.GetIsRunning
+                 && playerAnimator.playerController.GetIsGrounded)
+            {
+                playerAnimator.fsm.TryChange<IdleState>(typeof(RunState));
+            }
+            else if (playerAnimator.playerController.GetIsFalling)
             {
                 playerAnimator.fsm.TryChange<IdleState>(typeof(FallState));
             }
@@ -64,24 +92,82 @@ public class PlayerAnimator : MonoBehaviour
 
         }
 
-        private void OnAttack()
+        public void OnAttack()
         {
             playerAnimator.fsm.TryChange<IdleState>(typeof(AttackState));
         }
 
-        private void OnWalk()
+        public void OnHurt()
         {
-            playerAnimator.fsm.TryChange<IdleState>(typeof(WalkState));
+            playerAnimator.fsm.TryChange<IdleState>(typeof(HurtState));
         }
-
-        private void OnRun()
-        {
-            playerAnimator.fsm.TryChange<IdleState>(typeof(RunState));
-        }
-
-        private void OnJump()
+        public void OnJump()
         {
             playerAnimator.fsm.TryChange<IdleState>(typeof(JumpState));
+        }
+
+        public void OnDie()
+        {
+            playerAnimator.fsm.TryChange<IdleState>(typeof(DeadState));
+        }
+    }
+
+    private class WalkState : IState
+    {
+        private PlayerAnimator playerAnimator;
+
+        public WalkState(PlayerAnimator playerAnimator)
+        {
+            this.playerAnimator = playerAnimator;
+        }
+        public void Enter()
+        {
+            playerAnimator.animator.SetFloat(playerAnimator.ControllerStateName, 2);
+        }
+
+        public void Update()
+        {
+            if (!playerAnimator.playerController.GetIsMoving
+                    && playerAnimator.playerController.GetIsGrounded)
+            {
+                playerAnimator.fsm.TryChange<IdleState>(typeof(IdleState));
+            }
+            else if (playerAnimator.playerController.GetIsWalking
+                && playerAnimator.playerController.GetIsGrounded)
+            {
+                playerAnimator.fsm.TryChange<IdleState>(typeof(WalkState));
+            }
+            else if (playerAnimator.playerController.GetIsRunning
+                 && playerAnimator.playerController.GetIsGrounded)
+            {
+                playerAnimator.fsm.TryChange<IdleState>(typeof(RunState));
+            }
+            else if (playerAnimator.playerController.GetIsFalling)
+            {
+                playerAnimator.fsm.TryChange<IdleState>(typeof(FallState));
+            }
+        }
+
+        public void Exit()
+        {
+
+        }
+
+        public void OnAttack()
+        {
+            playerAnimator.fsm.TryChange<IdleState>(typeof(AttackState));
+        }
+        public void OnHurt()
+        {
+            playerAnimator.fsm.TryChange<IdleState>(typeof(HurtState));
+        }
+        public void OnJump()
+        {
+            playerAnimator.fsm.TryChange<IdleState>(typeof(JumpState));
+        }
+        public void OnDie()
+        {
+            playerAnimator.fsm.TryChange<IdleState>(typeof(DeadState));
         }
     }
 
@@ -100,7 +186,28 @@ public class PlayerAnimator : MonoBehaviour
 
         public void Update()
         {
-
+            if (playerAnimator.CurrentAnimationEnded())
+            {
+                if (!playerAnimator.playerController.GetIsMoving
+                     && playerAnimator.playerController.GetIsGrounded)
+                {
+                    playerAnimator.fsm.TryChange<IdleState>(typeof(IdleState));
+                }
+                else if (playerAnimator.playerController.GetIsWalking
+                     && playerAnimator.playerController.GetIsGrounded)
+                {
+                    playerAnimator.fsm.TryChange<IdleState>(typeof(WalkState));
+                }
+                else if (playerAnimator.playerController.GetIsRunning
+                     && playerAnimator.playerController.GetIsGrounded)
+                {
+                    playerAnimator.fsm.TryChange<IdleState>(typeof(RunState));
+                }
+                else if (playerAnimator.playerController.GetIsFalling)
+                {
+                    playerAnimator.fsm.TryChange<IdleState>(typeof(FallState));
+                }
+            }
         }
 
         public void Exit()
@@ -108,34 +215,12 @@ public class PlayerAnimator : MonoBehaviour
 
         }
 
-        private void OnDeath()
+        public void OnDie()
         {
-            
+            playerAnimator.fsm.TryChange<IdleState>(typeof(DeadState));
         }
     }
-    private class WalkState : IState
-    {
-        private PlayerAnimator playerAnimator;
-
-        public WalkState(PlayerAnimator playerAnimator)
-        {
-            this.playerAnimator = playerAnimator;
-        }
-        public void Enter()
-        {
-            playerAnimator.animator.SetFloat(playerAnimator.ControllerStateName, 2);
-        }
-
-        public void Update()
-        {
-
-        }
-
-        public void Exit()
-        {
-
-        }
-    }
+    
 
     private class RunState : IState
     {
@@ -233,11 +318,11 @@ public class PlayerAnimator : MonoBehaviour
         }
     }
 
-    private class DeathState : IState
+    private class DeadState : IState
     {
         private PlayerAnimator playerAnimator;
 
-        public DeathState(PlayerAnimator playerAnimator)
+        public DeadState(PlayerAnimator playerAnimator)
         {
             this.playerAnimator = playerAnimator;
         }
