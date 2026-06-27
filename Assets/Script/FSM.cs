@@ -7,7 +7,7 @@ public class FSM
 
     private Dictionary<Type, IState> statesDictionary = new Dictionary<Type, IState>();
 
-    public FSM(List<IState> states)
+    public FSM(IState[] states)
     {
         foreach (IState state in states)
         {

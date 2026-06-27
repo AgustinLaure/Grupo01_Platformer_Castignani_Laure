@@ -291,5 +291,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da39be2de4faf194bbe75b21eb5f8832, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimator
-  playerController: {fileID: 8038965960095469775}
+  controller: {fileID: 8038965960095469775}
+  rb: {fileID: -2057887317093938310}
+  animator: {fileID: 1121340700123682060}
   player: {fileID: 3342596042176603546}
