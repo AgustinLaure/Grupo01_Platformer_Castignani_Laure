@@ -52,7 +52,10 @@ public class PlayerAnimator : MonoBehaviour
 
         public void Update()
         {
+            if (true)
+            {
 
+            }
         }
 
         public void Exit()
