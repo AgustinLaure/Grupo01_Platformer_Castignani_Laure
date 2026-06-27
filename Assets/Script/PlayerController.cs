@@ -1,7 +1,14 @@
+using System;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    public event Action OnPlayerStop;
+    public event Action OnPlayerWalk;
+    public event Action OnPlayerRun;
+    public event Action OnPlayerJump;
+    public event Action OnPlayerAttack;
+
     enum MoveState
     {
         None,
@@ -40,37 +47,9 @@ public class PlayerController : MonoBehaviour
     private float horizontalAxis = 0f;
     private float prevHorizontalAxis = 0f;
 
-    public bool GetIsMoving 
-    { 
-        get 
-        {
-            return horizontalAxis > epsilon || horizontalAxis < -epsilon; 
-        } 
-    }
-
-    public bool GetIsWalking
-    {
-        get
-        {
-            return GetIsMoving && !Input.GetButton("Run");
-        }
-    }
-
-    public bool GetIsRunning
-    {
-        get
-        {
-            return Input.GetButton("Run");
-        }
-    }
-
-    public bool GetIsAttacking
-    {
-        get
-        {
-            return Input.GetButton("Attack");
-        }
-    }
+    private bool getIsMoving { get { return horizontalAxis > epsilon || horizontalAxis < -epsilon; } }
+    private bool getIsWalking { get { return getIsMoving && !Input.GetButton("Run"); } }
+    private bool getIsRunning { get { return Input.GetButton("Run"); } }
 
     private void Update()
     {
@@ -83,24 +62,48 @@ public class PlayerController : MonoBehaviour
         if (Input.GetButtonDown("Jump") && isGrounded)
         {
             tryJump = true;
+            OnPlayerJump?.Invoke();
+        }
+
+        if (Input.GetButtonDown("Attack"))
+        {
+            OnPlayerAttack?.Invoke();
         }
     }
 
+    private void ChangeState(MoveState nextState)
+    {
+        switch (nextState)
+        {
+            case MoveState.None:
+                OnPlayerStop?.Invoke();
+                break;
+            case MoveState.Walking:
+                OnPlayerWalk?.Invoke();
+                break;
+            case MoveState.Running:
+                OnPlayerRun?.Invoke();
+                break;
+            default:
+                break;
+        }
+        moveState = nextState;
+    }
     private void UpdateMoveState()
     {
         switch (moveState)
         {
             case MoveState.None:
 
-                if (GetIsMoving)
+                if (getIsMoving)
                 {
-                    if (GetIsRunning)
+                    if (getIsRunning)
                     {
-                        moveState = MoveState.Running;
+                        ChangeState(MoveState.Running);
                     }
-                    else if (GetIsWalking)
+                    else if (getIsWalking)
                     {
-                        moveState = MoveState.Walking;
+                        ChangeState(MoveState.Walking);
                     }
                 }
 
@@ -112,18 +115,18 @@ public class PlayerController : MonoBehaviour
                 {
                     prevMoveState = moveState;
 
-                    moveState = MoveState.Walking;
+                    ChangeState(MoveState.Walking);
                     terminalVelocity = walkTerminalVelocity;
                     acceleration = walkAcceleration;
                 }
 
-                if (!GetIsMoving)
+                if (!getIsMoving)
                 {
-                    moveState = MoveState.None;
+                    ChangeState(MoveState.None);
                 }
-                else if (GetIsRunning)
+                else if (getIsRunning)
                 {
-                    moveState = MoveState.Running;
+                    ChangeState(MoveState.Running);
                 }
 
                 break;
@@ -134,18 +137,18 @@ public class PlayerController : MonoBehaviour
                 {
                     prevMoveState = moveState;
 
-                    moveState = MoveState.Running;
+                    ChangeState(MoveState.Running);
                     terminalVelocity = runTerminalVelocity;
                     acceleration = runAcceleration;
                 }
 
-                if (!GetIsMoving)
+                if (!getIsMoving)
                 {
-                    moveState = MoveState.None;
+                    ChangeState(MoveState.None);
                 }
-                else if (GetIsWalking)
+                else if (getIsWalking)
                 {
-                    moveState = MoveState.Walking;
+                    ChangeState(MoveState.Walking);
                 }
 
                 break;
