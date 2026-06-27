@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
+using NUnit.Framework.Interfaces;
 
 public class PlayerAnimator : MonoBehaviour
 {
@@ -11,25 +12,25 @@ public class PlayerAnimator : MonoBehaviour
 
     private readonly string ControllerStateName = "State";
 
-    private FSM stateMachine;
+    private FSM fsm;
 
     private Dictionary<Type, IState> states = new Dictionary<Type, IState>()
     {
-        [typeof(WalkState)] = new WalkState()
+        //[typeof(WalkState)] = new WalkState()
     };
 
     private void Start()
     {
        
 
-        toAddStates[]
+       // toAddStates[]
 
-        stateMachine = new FSM(toAddStates);
+        //stateMachine = new FSM(toAddStates);
     }
 
     private void Update()
     {
-        stateMachine.Update();
+        fsm.Update();
     }
 
     private void OnDestroy()
@@ -52,9 +53,9 @@ public class PlayerAnimator : MonoBehaviour
 
         public void Update()
         {
-            if (true)
+            if (playerAnimator.rb2d.linearVelocityY < 0f)
             {
-
+                playerAnimator.fsm.TryChange<IdleState>(typeof(FallState));
             }
         }
 
@@ -63,9 +64,24 @@ public class PlayerAnimator : MonoBehaviour
 
         }
 
-        private void OnDeath()
+        private void OnAttack()
         {
+            playerAnimator.fsm.TryChange<IdleState>(typeof(AttackState));
+        }
 
+        private void OnWalk()
+        {
+            playerAnimator.fsm.TryChange<IdleState>(typeof(WalkState));
+        }
+
+        private void OnRun()
+        {
+            playerAnimator.fsm.TryChange<IdleState>(typeof(RunState));
+        }
+
+        private void OnJump()
+        {
+            playerAnimator.fsm.TryChange<IdleState>(typeof(JumpState));
         }
     }
 
@@ -119,7 +135,125 @@ public class PlayerAnimator : MonoBehaviour
         {
 
         }
+    }
 
-        
+    private class RunState : IState
+    {
+        private PlayerAnimator playerAnimator;
+
+        public RunState(PlayerAnimator playerAnimator)
+        {
+            this.playerAnimator = playerAnimator;
+        }
+        public void Enter()
+        {
+            playerAnimator.animator.SetFloat(playerAnimator.ControllerStateName, 3);
+        }
+
+        public void Update()
+        {
+
+        }
+
+        public void Exit()
+        {
+
+        }
+    }
+
+    private class HurtState : IState
+    {
+        private PlayerAnimator playerAnimator;
+
+        public HurtState(PlayerAnimator playerAnimator)
+        {
+            this.playerAnimator = playerAnimator;
+        }
+        public void Enter()
+        {
+            playerAnimator.animator.SetFloat(playerAnimator.ControllerStateName, 4);
+        }
+
+        public void Update()
+        {
+
+        }
+
+        public void Exit()
+        {
+
+        }
+    }
+
+    private class FallState : IState
+    {
+        private PlayerAnimator playerAnimator;
+
+        public FallState(PlayerAnimator playerAnimator)
+        {
+            this.playerAnimator = playerAnimator;
+        }
+        public void Enter()
+        {
+            playerAnimator.animator.SetFloat(playerAnimator.ControllerStateName, 5);
+        }
+
+        public void Update()
+        {
+
+        }
+
+        public void Exit()
+        {
+
+        }
+    }
+
+    private class JumpState : IState
+    {
+        private PlayerAnimator playerAnimator;
+
+        public JumpState(PlayerAnimator playerAnimator)
+        {
+            this.playerAnimator = playerAnimator;
+        }
+        public void Enter()
+        {
+            playerAnimator.animator.SetFloat(playerAnimator.ControllerStateName, 6);
+        }
+
+        public void Update()
+        {
+
+        }
+
+        public void Exit()
+        {
+
+        }
+    }
+
+    private class DeathState : IState
+    {
+        private PlayerAnimator playerAnimator;
+
+        public DeathState(PlayerAnimator playerAnimator)
+        {
+            this.playerAnimator = playerAnimator;
+        }
+        public void Enter()
+        {
+            playerAnimator.animator.SetFloat(playerAnimator.ControllerStateName, 7);
+        }
+
+        public void Update()
+        {
+
+        }
+
+        public void Exit()
+        {
+
+        }
     }
 }
