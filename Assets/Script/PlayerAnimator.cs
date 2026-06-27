@@ -38,12 +38,19 @@ public class PlayerAnimator : MonoBehaviour
         //OnHurt
         //Ondie
 
+        FallState fallState = new FallState(this);
+        playerController.OnPlayerAttack += fallState.OnAttack;
+        playerController.OnPlayerJump += fallState.OnJump;
+        //OnHurt
+        //OnDie
+
         states = new Dictionary<Type, IState>()
         {
             [typeof(IdleState)] = idleState,
             [typeof(AttackState)] = attackState,
             [typeof(WalkState)] = walkState,
             [typeof(RunState)] = runState,
+            [typeof(FallState)] = fallState
         };
 
         fsm = new FSM(states);
@@ -68,6 +75,18 @@ public class PlayerAnimator : MonoBehaviour
         states.TryGetValue(typeof(IdleState), out auxState);
         playerController.OnPlayerAttack -= ((IdleState)auxState).OnAttack;
         playerController.OnPlayerJump -= ((IdleState)auxState).OnJump;
+
+        states.TryGetValue(typeof(WalkState), out auxState);
+        playerController.OnPlayerAttack -= ((WalkState)auxState).OnAttack;
+        playerController.OnPlayerJump -= ((WalkState)auxState).OnJump;
+
+        states.TryGetValue(typeof(RunState), out auxState);
+        playerController.OnPlayerAttack -= ((RunState)auxState).OnAttack;
+        playerController.OnPlayerJump -= ((RunState)auxState).OnJump;
+
+        states.TryGetValue(typeof(FallState), out auxState);
+        playerController.OnPlayerAttack -= ((FallState)auxState).OnAttack;
+        playerController.OnPlayerJump -= ((FallState)auxState).OnJump;
     }
 
     private class IdleState : IState
@@ -234,6 +253,62 @@ public class PlayerAnimator : MonoBehaviour
         }
     }
 
+    private class FallState : IState
+    {
+        private PlayerAnimator playerAnimator;
+
+        public FallState(PlayerAnimator playerAnimator)
+        {
+            this.playerAnimator = playerAnimator;
+        }
+        public void Enter()
+        {
+            playerAnimator.animator.SetFloat(playerAnimator.ControllerStateName, 5);
+        }
+
+        public void Update()
+        {
+            if (!playerAnimator.playerController.GetIsMoving
+                    && playerAnimator.playerController.GetIsGrounded)
+            {
+                playerAnimator.fsm.TryChange<IdleState>(typeof(IdleState));
+            }
+            else if (playerAnimator.playerController.GetIsWalking
+                && playerAnimator.playerController.GetIsGrounded)
+            {
+                playerAnimator.fsm.TryChange<IdleState>(typeof(WalkState));
+            }
+            else if (playerAnimator.playerController.GetIsRunning
+                 && playerAnimator.playerController.GetIsGrounded)
+            {
+                playerAnimator.fsm.TryChange<IdleState>(typeof(RunState));
+            }
+        }
+
+        public void Exit()
+        {
+
+        }
+
+        public void OnAttack()
+        {
+            playerAnimator.fsm.TryChange<IdleState>(typeof(AttackState));
+        }
+        public void OnHurt()
+        {
+            playerAnimator.fsm.TryChange<IdleState>(typeof(HurtState));
+        }
+        public void OnJump()
+        {
+            playerAnimator.fsm.TryChange<IdleState>(typeof(JumpState));
+        }
+        public void OnDie()
+        {
+            playerAnimator.fsm.TryChange<IdleState>(typeof(DeadState));
+        }
+    }
+
+
     private class AttackState : IState
     {
         private PlayerAnimator playerAnimator;
@@ -283,9 +358,6 @@ public class PlayerAnimator : MonoBehaviour
             playerAnimator.fsm.TryChange<IdleState>(typeof(DeadState));
         }
     }
-    
-
-    
 
     private class HurtState : IState
     {
@@ -311,30 +383,7 @@ public class PlayerAnimator : MonoBehaviour
         }
     }
 
-    private class FallState : IState
-    {
-        private PlayerAnimator playerAnimator;
-
-        public FallState(PlayerAnimator playerAnimator)
-        {
-            this.playerAnimator = playerAnimator;
-        }
-        public void Enter()
-        {
-            playerAnimator.animator.SetFloat(playerAnimator.ControllerStateName, 5);
-        }
-
-        public void Update()
-        {
-
-        }
-
-        public void Exit()
-        {
-
-        }
-    }
-
+    
     private class JumpState : IState
     {
         private PlayerAnimator playerAnimator;
