@@ -292,3 +292,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimator
   playerController: {fileID: 8038965960095469775}
+  player: {fileID: 3342596042176603546}
