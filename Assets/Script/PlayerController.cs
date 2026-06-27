@@ -3,9 +3,6 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    public event Action OnPlayerStop;
-    public event Action OnPlayerWalk;
-    public event Action OnPlayerRun;
     public event Action OnPlayerJump;
     public event Action OnPlayerAttack;
 
@@ -71,24 +68,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void ChangeState(MoveState nextState)
-    {
-        switch (nextState)
-        {
-            case MoveState.None:
-                OnPlayerStop?.Invoke();
-                break;
-            case MoveState.Walking:
-                OnPlayerWalk?.Invoke();
-                break;
-            case MoveState.Running:
-                OnPlayerRun?.Invoke();
-                break;
-            default:
-                break;
-        }
-        moveState = nextState;
-    }
     private void UpdateMoveState()
     {
         switch (moveState)
@@ -99,11 +78,11 @@ public class PlayerController : MonoBehaviour
                 {
                     if (getIsRunning)
                     {
-                        ChangeState(MoveState.Running);
+                        moveState = MoveState.Running;
                     }
                     else if (getIsWalking)
                     {
-                        ChangeState(MoveState.Walking);
+                        moveState = MoveState.Walking;
                     }
                 }
 
@@ -115,18 +94,18 @@ public class PlayerController : MonoBehaviour
                 {
                     prevMoveState = moveState;
 
-                    ChangeState(MoveState.Walking);
+                    moveState = MoveState.Walking;
                     terminalVelocity = walkTerminalVelocity;
                     acceleration = walkAcceleration;
                 }
 
                 if (!getIsMoving)
                 {
-                    ChangeState(MoveState.None);
+                    moveState = MoveState.None;
                 }
                 else if (getIsRunning)
                 {
-                    ChangeState(MoveState.Running);
+                    moveState = MoveState.Running;
                 }
 
                 break;
@@ -137,18 +116,18 @@ public class PlayerController : MonoBehaviour
                 {
                     prevMoveState = moveState;
 
-                    ChangeState(MoveState.Running);
+                    moveState = MoveState.Running;
                     terminalVelocity = runTerminalVelocity;
                     acceleration = runAcceleration;
                 }
 
                 if (!getIsMoving)
                 {
-                    ChangeState(MoveState.None);
+                    moveState = MoveState.None;
                 }
                 else if (getIsWalking)
                 {
-                    ChangeState(MoveState.Walking);
+                    moveState = MoveState.Walking;
                 }
 
                 break;
