@@ -135,6 +135,30 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 5386901608712734928, guid: 1d62898284b3bd146ab42962797e6dcc, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 5386901608712734928, guid: 1d62898284b3bd146ab42962797e6dcc, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5386901608712734928, guid: 1d62898284b3bd146ab42962797e6dcc, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5386901608712734928, guid: 1d62898284b3bd146ab42962797e6dcc, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5386901608712734928, guid: 1d62898284b3bd146ab42962797e6dcc, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6915439413308225305, guid: 1d62898284b3bd146ab42962797e6dcc, type: 3}
+      propertyPath: initialCurrentHealth
+      value: 50
+      objectReference: {fileID: 0}
     - target: {fileID: 8763528665285416494, guid: 1d62898284b3bd146ab42962797e6dcc, type: 3}
       propertyPath: m_Controller
       value: 
