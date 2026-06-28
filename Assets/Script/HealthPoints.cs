@@ -1,5 +1,4 @@
 using System;
-using UnityEngine;
 
 public class HealthPoints
 {
@@ -8,6 +7,9 @@ public class HealthPoints
 
     private float currentHealth;
     private float maxHealth;
+
+    public float GetCurrentHealth { get { return currentHealth; } }
+    public float GetMaxHealth { get { return maxHealth; } }
 
     public HealthPoints(float currentHealth, float maxHealth)
     {

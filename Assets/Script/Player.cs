@@ -2,15 +2,39 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    private HealthPoints healthPoints;
+
+    [SerializeField] private float initialCurrentHealth;
+    [SerializeField] private float initialMaxHealth;
+
+    public HealthPoints GetHealthPoints { get { return healthPoints; } }
+
+    private void Awake()
+    {
+        healthPoints = new HealthPoints(initialCurrentHealth, initialMaxHealth);
+    }
     void Start()
     {
-        
+
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        
+        if (Input.GetKeyDown(KeyCode.K))
+        {
+            healthPoints.TakeDamage(5f);
+        }
+
+        Debug.Log("Health: " + healthPoints.GetCurrentHealth + " / " + healthPoints.GetMaxHealth);
+    }
+
+    private void HandleTakeDamage()
+    {
+
+    }
+
+    private void HandleDie()
+    {
+
     }
 }
