@@ -1,16 +1,19 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
-using NUnit.Framework.Interfaces;
-using Unity.VisualScripting;
 
 public class PlayerAnimator : MonoBehaviour
 {
-    [SerializeField] private PlayerController playerController;
-    [SerializeField] private Rigidbody2D rb2d;
-    [SerializeField] private Animator animator;
-    [SerializeField] private SpriteRenderer spriteRenderer;
-    [SerializeField] private GameObject player;
+    public event Action OnFinishAttack;
+
+    [SerializeField] private GameObject playerObject;
+    [SerializeField] private GameObject playerRender;
+    [SerializeField] private Transform playerAttackAreaPivot;
+
+    private PlayerController playerController;
+    private Rigidbody2D playerRb;
+    private Animator playerAnimator;
+    private SpriteRenderer playerSpriteRenderer;
 
     private readonly string controllerStateName = "State";
     private int controllerStateHash;
@@ -26,6 +29,11 @@ public class PlayerAnimator : MonoBehaviour
 
     private void Awake()
     {
+        playerController = playerObject.GetComponent<PlayerController>();
+        playerRb = playerObject.GetComponent<Rigidbody2D>();
+        playerAnimator = playerRender.GetComponent<Animator>();
+        playerSpriteRenderer = playerRender.GetComponent<SpriteRenderer>();
+
         controllerStateHash = Animator.StringToHash(controllerStateName);
     }
     private void Start()
@@ -99,14 +107,19 @@ public class PlayerAnimator : MonoBehaviour
 
     private bool CurrentAnimationEnded()
     {
-        AnimatorStateInfo animatorInfo = animator.GetCurrentAnimatorStateInfo(0);
+        AnimatorStateInfo animatorInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
 
-        return animatorInfo.normalizedTime >= 1f && !animator.IsInTransition(0);
+        return animatorInfo.normalizedTime >= 1f && !playerAnimator.IsInTransition(0);
     }
 
-    private void FlipSprite(bool isFlipped)
+    private void FlipCharacter(bool isFlipped)
     {
-        spriteRenderer.flipX = isFlipped;
+        float angle = isFlipped ? 180f : 0;
+
+        Quaternion newRotation = new Quaternion(0f, 0f, angle, 1f);
+
+        playerAttackAreaPivot.rotation = newRotation;
+        playerSpriteRenderer.flipX = isFlipped;
     }
 
     private void OnDestroy()
@@ -147,18 +160,18 @@ public class PlayerAnimator : MonoBehaviour
         }
         public void Enter()
         {
-            playerAnimator.animator.SetInteger(playerAnimator.controllerStateHash, 0);
+            playerAnimator.playerAnimator.SetInteger(playerAnimator.controllerStateHash, 0);
         }
 
         public void Update()
         {
             if (playerAnimator.horizontalAxis > 0)
             {
-                playerAnimator.FlipSprite(false);
+                playerAnimator.FlipCharacter(false);
             }
             else if (playerAnimator.horizontalAxis < 0)
             {
-                playerAnimator.FlipSprite(true);
+                playerAnimator.FlipCharacter(true);
             }
 
             if (playerAnimator.playerController.GetIsWalking
@@ -214,7 +227,7 @@ public class PlayerAnimator : MonoBehaviour
         }
         public void Enter()
         {
-            playerAnimator.animator.SetInteger(playerAnimator.controllerStateHash, 1);
+            playerAnimator.playerAnimator.SetInteger(playerAnimator.controllerStateHash, 1);
             timeStill = 0f;
         }
 
@@ -222,11 +235,11 @@ public class PlayerAnimator : MonoBehaviour
         {
             if (playerAnimator.horizontalAxis > 0)
             {
-                playerAnimator.FlipSprite(false);
+                playerAnimator.FlipCharacter(false);
             }
             else if (playerAnimator.horizontalAxis < 0)
             {
-                playerAnimator.FlipSprite(true);
+                playerAnimator.FlipCharacter(true);
             }
 
             if (!playerAnimator.playerController.GetIsMoving
@@ -287,7 +300,7 @@ public class PlayerAnimator : MonoBehaviour
         }
         public void Enter()
         {
-            playerAnimator.animator.SetInteger(playerAnimator.controllerStateHash, 2);
+            playerAnimator.playerAnimator.SetInteger(playerAnimator.controllerStateHash, 2);
             timeStill = 0f;
         }
 
@@ -295,11 +308,11 @@ public class PlayerAnimator : MonoBehaviour
         {
             if (playerAnimator.horizontalAxis > 0)
             {
-                playerAnimator.FlipSprite(false);
+                playerAnimator.FlipCharacter(false);
             }
             else if (playerAnimator.horizontalAxis < 0)
             {
-                playerAnimator.FlipSprite(true);
+                playerAnimator.FlipCharacter(true);
             }
 
             if (!playerAnimator.playerController.GetIsMoving
@@ -360,18 +373,18 @@ public class PlayerAnimator : MonoBehaviour
         }
         public void Enter()
         {
-            playerAnimator.animator.SetInteger(playerAnimator.controllerStateHash, 3);
+            playerAnimator.playerAnimator.SetInteger(playerAnimator.controllerStateHash, 3);
         }
 
         public void Update()
         {
             if (playerAnimator.horizontalAxis > 0)
             {
-                playerAnimator.FlipSprite(false);
+                playerAnimator.FlipCharacter(false);
             }
             else if (playerAnimator.horizontalAxis < 0)
             {
-                playerAnimator.FlipSprite(true);
+                playerAnimator.FlipCharacter(true);
             }
 
             if (!playerAnimator.playerController.GetIsMoving
@@ -424,7 +437,7 @@ public class PlayerAnimator : MonoBehaviour
         }
         public void Enter()
         {
-            playerAnimator.animator.SetInteger(playerAnimator.controllerStateHash, 4);
+            playerAnimator.playerAnimator.SetInteger(playerAnimator.controllerStateHash, 4);
         }
 
         public void Update()
@@ -455,7 +468,7 @@ public class PlayerAnimator : MonoBehaviour
 
         public void Exit()
         {
-
+            playerAnimator.OnFinishAttack?.Invoke();
         }
 
         public void OnDie()
@@ -474,18 +487,18 @@ public class PlayerAnimator : MonoBehaviour
         }
         public void Enter()
         {
-            playerAnimator.animator.SetInteger(playerAnimator.controllerStateHash, 5);
+            playerAnimator.playerAnimator.SetInteger(playerAnimator.controllerStateHash, 5);
         }
 
         public void Update()
         {
             if (playerAnimator.horizontalAxis > 0)
             {
-                playerAnimator.FlipSprite(false);
+                playerAnimator.FlipCharacter(false);
             }
             else if (playerAnimator.horizontalAxis < 0)
             {
-                playerAnimator.FlipSprite(true);
+                playerAnimator.FlipCharacter(true);
             }
 
             if (!playerAnimator.playerController.GetIsMoving
@@ -538,18 +551,18 @@ public class PlayerAnimator : MonoBehaviour
         }
         public void Enter()
         {
-            playerAnimator.animator.SetInteger(playerAnimator.controllerStateHash, 6);
+            playerAnimator.playerAnimator.SetInteger(playerAnimator.controllerStateHash, 6);
         }
 
         public void Update()
         {
             if (playerAnimator.horizontalAxis > 0)
             {
-                playerAnimator.FlipSprite(false);
+                playerAnimator.FlipCharacter(false);
             }
             else if (playerAnimator.horizontalAxis < 0)
             {
-                playerAnimator.FlipSprite(true);
+                playerAnimator.FlipCharacter(true);
             }
 
             if (playerAnimator.playerController.GetIsFalling)
@@ -587,7 +600,7 @@ public class PlayerAnimator : MonoBehaviour
         }
         public void Enter()
         {
-            playerAnimator.animator.SetInteger(playerAnimator.controllerStateHash, 7);
+            playerAnimator.playerAnimator.SetInteger(playerAnimator.controllerStateHash, 7);
         }
 
         public void Update()
