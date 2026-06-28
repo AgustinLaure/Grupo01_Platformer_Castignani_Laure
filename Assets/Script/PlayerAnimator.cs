@@ -14,9 +14,14 @@ public class PlayerAnimator : MonoBehaviour
     private Rigidbody2D playerRb;
     private Animator playerAnimator;
     private SpriteRenderer playerSpriteRenderer;
+    private HealthPoints playerHealthPoints;
 
-    private readonly string controllerStateName = "State";
+    private readonly string controllerStateVarName = "State";
+    private readonly string attackStateName = "Attack";
+    private readonly string hurtStateName = "Hurt";
     private int controllerStateHash;
+    private int attackAnimHash;
+    private int hurtAnimHash;
 
     [SerializeField] private float stillTimeToIdleFromMove = 0.25f;
 
@@ -33,45 +38,50 @@ public class PlayerAnimator : MonoBehaviour
         playerRb = playerObject.GetComponent<Rigidbody2D>();
         playerAnimator = playerRender.GetComponent<Animator>();
         playerSpriteRenderer = playerRender.GetComponent<SpriteRenderer>();
+        playerHealthPoints = playerObject.GetComponent<Player>().GetHealthPoints;
 
-        controllerStateHash = Animator.StringToHash(controllerStateName);
+        controllerStateHash = Animator.StringToHash(controllerStateVarName);
+        attackAnimHash = Animator.StringToHash(attackStateName);
+        hurtAnimHash = Animator.StringToHash(hurtStateName);
     }
     private void Start()
     {
         IdleState idleState = new IdleState(this);
         playerController.OnPlayerAttack += idleState.OnAttack;
         playerController.OnPlayerJump += idleState.OnJump;
+        playerHealthPoints.OnTakeDamage += idleState.OnHurt;
+        playerHealthPoints.OnDie += idleState.OnDie;
 
         WalkState walkState = new WalkState(this);
         playerController.OnPlayerAttack += walkState.OnAttack;
         playerController.OnPlayerJump += walkState.OnJump;
-        //OnHurt
-        //Ondie
+        playerHealthPoints.OnTakeDamage += walkState.OnHurt;
+        playerHealthPoints.OnDie += walkState.OnDie;
 
         RunState runState = new RunState(this);
         playerController.OnPlayerAttack += runState.OnAttack;
         playerController.OnPlayerJump += runState.OnJump;
-        //OnHurt
-        //Ondie
+        playerHealthPoints.OnTakeDamage += runState.OnHurt;
+        playerHealthPoints.OnDie += runState.OnDie;
 
         FallState fallState = new FallState(this);
         playerController.OnPlayerAttack += fallState.OnAttack;
         playerController.OnPlayerJump += fallState.OnJump;
-        //OnHurt
-        //OnDie
+        playerHealthPoints.OnTakeDamage += fallState.OnHurt;
+        playerHealthPoints.OnDie += fallState.OnDie;
 
         AttackState attackState = new AttackState(this);
-        //Ondie
+        playerHealthPoints.OnDie += attackState.OnDie;
 
         HurtState hurtState = new HurtState(this);
         playerController.OnPlayerAttack += hurtState.OnAttack;
         playerController.OnPlayerJump += hurtState.OnJump;
-        //Ondie
+        playerHealthPoints.OnDie += hurtState.OnDie;
 
         JumpState jumpState = new JumpState(this);
         playerController.OnPlayerAttack += jumpState.OnAttack;
-        //OnHurt
-        //Ondie
+        playerHealthPoints.OnTakeDamage += jumpState.OnHurt;
+        playerHealthPoints.OnDie += jumpState.OnDie;
 
         DeadState deadState = new DeadState(this);
 
@@ -99,17 +109,14 @@ public class PlayerAnimator : MonoBehaviour
 
         fsm.Update();
 
-        Debug.Log("Curr: " + playerController.GetHorizontalAxis);
-        Debug.Log("Prev: " + prevHorizontalAxis);
-
         prevHorizontalAxis = horizontalAxis;
     }
 
-    private bool CurrentAnimationEnded()
+    private bool CurrentAnimationEnded(int currentAnimHash)
     {
         AnimatorStateInfo animatorInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
 
-        return animatorInfo.normalizedTime >= 1f && !playerAnimator.IsInTransition(0);
+        return animatorInfo.normalizedTime >= 1f && animatorInfo.shortNameHash == currentAnimHash;
     }
 
     private void FlipCharacter(bool isFlipped)
@@ -129,25 +136,39 @@ public class PlayerAnimator : MonoBehaviour
         states.TryGetValue(typeof(IdleState), out auxState);
         playerController.OnPlayerAttack -= ((IdleState)auxState).OnAttack;
         playerController.OnPlayerJump -= ((IdleState)auxState).OnJump;
+        playerHealthPoints.OnTakeDamage -= ((IdleState)auxState).OnHurt;
+        playerHealthPoints.OnDie -= ((IdleState)auxState).OnDie;
 
         states.TryGetValue(typeof(WalkState), out auxState);
         playerController.OnPlayerAttack -= ((WalkState)auxState).OnAttack;
         playerController.OnPlayerJump -= ((WalkState)auxState).OnJump;
+        playerHealthPoints.OnTakeDamage -= ((WalkState)auxState).OnHurt;
+        playerHealthPoints.OnDie -= ((WalkState)auxState).OnDie;
 
         states.TryGetValue(typeof(RunState), out auxState);
         playerController.OnPlayerAttack -= ((RunState)auxState).OnAttack;
         playerController.OnPlayerJump -= ((RunState)auxState).OnJump;
+        playerHealthPoints.OnTakeDamage -= ((RunState)auxState).OnHurt;
+        playerHealthPoints.OnDie -= ((RunState)auxState).OnDie;
 
         states.TryGetValue(typeof(FallState), out auxState);
         playerController.OnPlayerAttack -= ((FallState)auxState).OnAttack;
         playerController.OnPlayerJump -= ((FallState)auxState).OnJump;
+        playerHealthPoints.OnTakeDamage -= ((FallState)auxState).OnHurt;
+        playerHealthPoints.OnDie -= ((FallState)auxState).OnDie;
+
+        states.TryGetValue(typeof(AttackState), out auxState);
+        playerHealthPoints.OnDie -= ((AttackState)auxState).OnDie;
 
         states.TryGetValue(typeof(HurtState), out auxState);
         playerController.OnPlayerAttack -= ((HurtState)auxState).OnAttack;
         playerController.OnPlayerJump -= ((HurtState)auxState).OnJump;
+        playerHealthPoints.OnDie -= ((HurtState)auxState).OnDie;
 
         states.TryGetValue(typeof(JumpState), out auxState);
         playerController.OnPlayerAttack -= ((JumpState)auxState).OnAttack;
+        playerHealthPoints.OnTakeDamage -= ((JumpState)auxState).OnHurt;
+        playerHealthPoints.OnDie -= ((JumpState)auxState).OnDie;
     }
 
     private class IdleState : IState
@@ -442,7 +463,7 @@ public class PlayerAnimator : MonoBehaviour
 
         public void Update()
         {
-            if (playerAnimator.CurrentAnimationEnded())
+            if (playerAnimator.CurrentAnimationEnded(playerAnimator.attackAnimHash))
             {
                 if (!playerAnimator.playerController.GetIsMoving
                      && playerAnimator.playerController.GetIsGrounded)
@@ -501,24 +522,27 @@ public class PlayerAnimator : MonoBehaviour
                 playerAnimator.FlipCharacter(true);
             }
 
-            if (!playerAnimator.playerController.GetIsMoving
+            if (playerAnimator.CurrentAnimationEnded(playerAnimator.hurtAnimHash))
+            {
+                if (!playerAnimator.playerController.GetIsMoving
                      && playerAnimator.playerController.GetIsGrounded)
-            {
-                playerAnimator.fsm.TryChange<HurtState>(typeof(IdleState));
-            }
-            else if (playerAnimator.playerController.GetIsWalking
-                 && playerAnimator.playerController.GetIsGrounded)
-            {
-                playerAnimator.fsm.TryChange<HurtState>(typeof(WalkState));
-            }
-            else if (playerAnimator.playerController.GetIsRunning
-                 && playerAnimator.playerController.GetIsGrounded)
-            {
-                playerAnimator.fsm.TryChange<HurtState>(typeof(RunState));
-            }
-            else if (playerAnimator.playerController.GetIsFalling)
-            {
-                playerAnimator.fsm.TryChange<HurtState>(typeof(FallState));
+                {
+                    playerAnimator.fsm.TryChange<HurtState>(typeof(IdleState));
+                }
+                else if (playerAnimator.playerController.GetIsWalking
+                     && playerAnimator.playerController.GetIsGrounded)
+                {
+                    playerAnimator.fsm.TryChange<HurtState>(typeof(WalkState));
+                }
+                else if (playerAnimator.playerController.GetIsRunning
+                     && playerAnimator.playerController.GetIsGrounded)
+                {
+                    playerAnimator.fsm.TryChange<HurtState>(typeof(RunState));
+                }
+                else if (playerAnimator.playerController.GetIsFalling)
+                {
+                    playerAnimator.fsm.TryChange<HurtState>(typeof(FallState));
+                }
             }
         }
 
