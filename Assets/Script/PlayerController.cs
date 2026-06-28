@@ -5,7 +5,6 @@ public class PlayerController : MonoBehaviour
 {
     public event Action OnPlayerJump;
     public event Action OnPlayerAttack;
-
     enum MoveState
     {
         None,
@@ -29,6 +28,8 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private Rigidbody2D rb;
     [SerializeField] private LayerMask environmentLayer;
+    [SerializeField] private GameObject attackArea;
+    [SerializeField] private PlayerAnimator playerAnimator;
 
     private const ForceMode2D horizontalMoveForce = ForceMode2D.Force;
     private const ForceMode2D jumpMoveForce = ForceMode2D.Impulse;
@@ -51,6 +52,10 @@ public class PlayerController : MonoBehaviour
     public bool GetIsRunning { get { return GetIsMoving && Input.GetButton("Run"); } }
     public float GetHorizontalAxis { get { return horizontalAxis; } }
 
+    private void Start()
+    {
+        playerAnimator.OnFinishAttack += HandleOnFinishAttack;
+    }
     private void Update()
     {
         horizontalAxis = Input.GetAxisRaw("Horizontal");
@@ -67,8 +72,15 @@ public class PlayerController : MonoBehaviour
 
         if (Input.GetButtonDown("Attack"))
         {
+            attackArea.gameObject.SetActive(true);
+
             OnPlayerAttack?.Invoke();
         }
+    }
+
+    private void OnDestroy()
+    {
+        playerAnimator.OnFinishAttack -= HandleOnFinishAttack;
     }
 
     private void UpdateMoveState()
@@ -178,6 +190,11 @@ public class PlayerController : MonoBehaviour
         velocityClamp = Mathf.Min(Mathf.Abs(rb.linearVelocityX), velocityClamp);
 
         rb.linearVelocityX -= velocityClamp * Mathf.Sign(rb.linearVelocityX);
+    }
+
+    private void HandleOnFinishAttack()
+    {
+        attackArea.gameObject.SetActive(false);
     }
 
     private void OnDrawGizmos()

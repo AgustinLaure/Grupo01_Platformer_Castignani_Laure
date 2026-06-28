@@ -1,11 +1,11 @@
 using System.Collections.Generic;
 using System;
 using UnityEngine;
-using NUnit.Framework.Interfaces;
-using Unity.VisualScripting;
 
 public class PlayerAnimator : MonoBehaviour
 {
+    public event Action OnFinishAttack;
+
     [SerializeField] private PlayerController playerController;
     [SerializeField] private Rigidbody2D rb2d;
     [SerializeField] private Animator animator;
@@ -455,7 +455,7 @@ public class PlayerAnimator : MonoBehaviour
 
         public void Exit()
         {
-
+            playerAnimator.OnFinishAttack?.Invoke();
         }
 
         public void OnDie()
