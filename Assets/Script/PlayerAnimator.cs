@@ -116,7 +116,7 @@ public class PlayerAnimator : MonoBehaviour
     {
         AnimatorStateInfo animatorInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
 
-        return animatorInfo.normalizedTime >= 1f && !playerAnimator.IsInTransition(0) && animatorInfo.shortNameHash == currentAnimHash;
+        return animatorInfo.normalizedTime >= 1f && animatorInfo.shortNameHash == currentAnimHash;
     }
 
     private void FlipCharacter(bool isFlipped)
