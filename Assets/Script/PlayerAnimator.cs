@@ -101,7 +101,7 @@ public class PlayerAnimator : MonoBehaviour
     {
         AnimatorStateInfo animatorInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-        return animatorInfo.normalizedTime >= 1f;
+        return animatorInfo.normalizedTime >= 1f && !animator.IsInTransition(0);
     }
 
     private void FlipSprite(bool isFlipped)
