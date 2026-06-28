@@ -4,6 +4,9 @@ public class Player : MonoBehaviour
 {
     private HealthPoints healthPoints;
 
+    [SerializeField] private AreaTrigger attackAreaTrigger;
+
+    [SerializeField] private float damage;
     [SerializeField] private float initialCurrentHealth;
     [SerializeField] private float initialMaxHealth;
 
@@ -17,6 +20,7 @@ public class Player : MonoBehaviour
         healthPoints = new HealthPoints(initialCurrentHealth, initialMaxHealth);
 
         healthPoints.OnDie += HandleDie;
+        attackAreaTrigger.OnTrigger += HandleAttackAreaTrigger;
     }
     void Start()
     {
@@ -36,13 +40,13 @@ public class Player : MonoBehaviour
     private void OnDestroy()
     {
         healthPoints.OnDie -= HandleDie;
+        attackAreaTrigger.OnTrigger -= HandleAttackAreaTrigger;
     }
 
-    private void HandleTakeDamage()
+    private void HandleAttackAreaTrigger()
     {
-
+        //Hit enemy logic
     }
-
     private void HandleDie()
     {
         isDead = true;
