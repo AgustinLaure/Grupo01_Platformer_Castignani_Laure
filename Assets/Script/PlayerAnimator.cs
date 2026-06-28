@@ -21,6 +21,7 @@ public class PlayerAnimator : MonoBehaviour
 
     private Dictionary<Type, IState> states;
 
+    private float horizontalAxis = 0f;
     private float prevHorizontalAxis = 0f;
 
     private void Awake()
@@ -86,16 +87,7 @@ public class PlayerAnimator : MonoBehaviour
 
     private void Update()
     {
-        float horizontalAxis = playerController.GetHorizontalAxis;
-
-        if (horizontalAxis > 0)
-        {
-            spriteRenderer.flipX = false;
-        }
-        else if (horizontalAxis < 0)
-        {
-            spriteRenderer.flipX = true;
-        }
+        horizontalAxis = playerController.GetHorizontalAxis;
 
         fsm.Update();
 
@@ -109,7 +101,7 @@ public class PlayerAnimator : MonoBehaviour
     {
         AnimatorStateInfo animatorInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-        return animatorInfo.normalizedTime >= 1f;
+        return animatorInfo.normalizedTime >= 1f && !animator.IsInTransition(0);
     }
 
     private void OnDestroy()
@@ -155,6 +147,15 @@ public class PlayerAnimator : MonoBehaviour
 
         public void Update()
         {
+            if (playerAnimator.horizontalAxis > 0)
+            {
+                playerAnimator.spriteRenderer.flipX = false;
+            }
+            else if (playerAnimator.horizontalAxis < 0)
+            {
+                playerAnimator.spriteRenderer.flipX = true;
+            }
+
             if (playerAnimator.playerController.GetIsWalking
                 && playerAnimator.playerController.GetIsGrounded)
             {
@@ -214,6 +215,15 @@ public class PlayerAnimator : MonoBehaviour
 
         public void Update()
         {
+            if (playerAnimator.horizontalAxis > 0)
+            {
+                playerAnimator.spriteRenderer.flipX = false;
+            }
+            else if (playerAnimator.horizontalAxis < 0)
+            {
+                playerAnimator.spriteRenderer.flipX = true;
+            }
+
             if (!playerAnimator.playerController.GetIsMoving
                 && playerAnimator.playerController.GetIsGrounded)
             {
@@ -278,6 +288,15 @@ public class PlayerAnimator : MonoBehaviour
 
         public void Update()
         {
+            if (playerAnimator.horizontalAxis > 0)
+            {
+                playerAnimator.spriteRenderer.flipX = false;
+            }
+            else if (playerAnimator.horizontalAxis < 0)
+            {
+                playerAnimator.spriteRenderer.flipX = true;
+            }
+
             if (!playerAnimator.playerController.GetIsMoving
                 && playerAnimator.playerController.GetIsGrounded)
             {
@@ -341,6 +360,15 @@ public class PlayerAnimator : MonoBehaviour
 
         public void Update()
         {
+            if (playerAnimator.horizontalAxis > 0)
+            {
+                playerAnimator.spriteRenderer.flipX = false;
+            }
+            else if (playerAnimator.horizontalAxis < 0)
+            {
+                playerAnimator.spriteRenderer.flipX = true;
+            }
+
             if (!playerAnimator.playerController.GetIsMoving
                     && playerAnimator.playerController.GetIsGrounded)
             {
@@ -398,6 +426,15 @@ public class PlayerAnimator : MonoBehaviour
         {
             if (playerAnimator.CurrentAnimationEnded())
             {
+                if (playerAnimator.horizontalAxis > 0)
+                {
+                    playerAnimator.spriteRenderer.flipX = false;
+                }
+                else if (playerAnimator.horizontalAxis < 0)
+                {
+                    playerAnimator.spriteRenderer.flipX = true;
+                }
+
                 if (!playerAnimator.playerController.GetIsMoving
                      && playerAnimator.playerController.GetIsGrounded)
                 {
@@ -446,6 +483,15 @@ public class PlayerAnimator : MonoBehaviour
 
         public void Update()
         {
+            if (playerAnimator.horizontalAxis > 0)
+            {
+                playerAnimator.spriteRenderer.flipX = false;
+            }
+            else if (playerAnimator.horizontalAxis < 0)
+            {
+                playerAnimator.spriteRenderer.flipX = true;
+            }
+
             if (!playerAnimator.playerController.GetIsMoving
                      && playerAnimator.playerController.GetIsGrounded)
             {
@@ -501,22 +547,16 @@ public class PlayerAnimator : MonoBehaviour
 
         public void Update()
         {
-            if (!playerAnimator.playerController.GetIsMoving
-          && playerAnimator.playerController.GetIsGrounded)
+            if (playerAnimator.horizontalAxis > 0)
             {
-                //playerAnimator.fsm.TryChange<JumpState>(typeof(IdleState));
+                playerAnimator.spriteRenderer.flipX = false;
             }
-            else if (playerAnimator.playerController.GetIsWalking
-                 && playerAnimator.playerController.GetIsGrounded)
+            else if (playerAnimator.horizontalAxis < 0)
             {
-                //playerAnimator.fsm.TryChange<JumpState>(typeof(WalkState));
+                playerAnimator.spriteRenderer.flipX = true;
             }
-            else if (playerAnimator.playerController.GetIsRunning
-                 && playerAnimator.playerController.GetIsGrounded)
-            {
-                //playerAnimator.fsm.TryChange<JumpState>(typeof(RunState));
-            }
-            else if (playerAnimator.playerController.GetIsFalling)
+
+            if (playerAnimator.playerController.GetIsFalling)
             {
                 playerAnimator.fsm.TryChange<JumpState>(typeof(FallState));
             }
