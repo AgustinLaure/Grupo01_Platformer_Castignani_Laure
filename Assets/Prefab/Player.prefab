@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 402455541267020779}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0.92, y: 0.26, z: 0}
+  m_LocalPosition: {x: 0.92, y: 0, z: 0}
   m_LocalScale: {x: 1.964196, y: 1.4933345, z: 1.6788}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -432,11 +432,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da39be2de4faf194bbe75b21eb5f8832, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimator
-  playerController: {fileID: 8038965960095469775}
-  rb2d: {fileID: -2057887317093938310}
-  animator: {fileID: 1121340700123682060}
-  spriteRenderer: {fileID: 7351984064621592073}
-  player: {fileID: 3342596042176603546}
+  playerObject: {fileID: 3342596042176603546}
+  playerRender: {fileID: 830466206702753527}
+  playerAttackAreaPivot: {fileID: 5386901608712734928}
   stillTimeToIdleFromMove: 0.25
 --- !u!1 &8129401181968816096
 GameObject:
@@ -462,8 +460,8 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8129401181968816096}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0.23, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
