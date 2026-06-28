@@ -296,6 +296,7 @@ GameObject:
   - component: {fileID: -2057887317093938310}
   - component: {fileID: 8038965960095469775}
   - component: {fileID: 2885574476845857708}
+  - component: {fileID: 6915439413308225305}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -436,6 +437,18 @@ MonoBehaviour:
   playerRender: {fileID: 830466206702753527}
   playerAttackAreaPivot: {fileID: 5386901608712734928}
   stillTimeToIdleFromMove: 0.25
+--- !u!114 &6915439413308225305
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3342596042176603546}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52fdaccc9ebded04192d8d5249a39d48, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Player
 --- !u!1 &8129401181968816096
 GameObject:
   m_ObjectHideFlags: 0
