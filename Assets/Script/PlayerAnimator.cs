@@ -101,7 +101,12 @@ public class PlayerAnimator : MonoBehaviour
     {
         AnimatorStateInfo animatorInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-        return animatorInfo.normalizedTime >= 1f && !animator.IsInTransition(0);
+        return animatorInfo.normalizedTime >= 1f;
+    }
+
+    private void FlipSprite(bool isFlipped)
+    {
+        spriteRenderer.flipX = isFlipped;
     }
 
     private void OnDestroy()
@@ -149,11 +154,11 @@ public class PlayerAnimator : MonoBehaviour
         {
             if (playerAnimator.horizontalAxis > 0)
             {
-                playerAnimator.spriteRenderer.flipX = false;
+                playerAnimator.FlipSprite(false);
             }
             else if (playerAnimator.horizontalAxis < 0)
             {
-                playerAnimator.spriteRenderer.flipX = true;
+                playerAnimator.FlipSprite(true);
             }
 
             if (playerAnimator.playerController.GetIsWalking
@@ -217,11 +222,11 @@ public class PlayerAnimator : MonoBehaviour
         {
             if (playerAnimator.horizontalAxis > 0)
             {
-                playerAnimator.spriteRenderer.flipX = false;
+                playerAnimator.FlipSprite(false);
             }
             else if (playerAnimator.horizontalAxis < 0)
             {
-                playerAnimator.spriteRenderer.flipX = true;
+                playerAnimator.FlipSprite(true);
             }
 
             if (!playerAnimator.playerController.GetIsMoving
@@ -290,11 +295,11 @@ public class PlayerAnimator : MonoBehaviour
         {
             if (playerAnimator.horizontalAxis > 0)
             {
-                playerAnimator.spriteRenderer.flipX = false;
+                playerAnimator.FlipSprite(false);
             }
             else if (playerAnimator.horizontalAxis < 0)
             {
-                playerAnimator.spriteRenderer.flipX = true;
+                playerAnimator.FlipSprite(true);
             }
 
             if (!playerAnimator.playerController.GetIsMoving
@@ -362,11 +367,11 @@ public class PlayerAnimator : MonoBehaviour
         {
             if (playerAnimator.horizontalAxis > 0)
             {
-                playerAnimator.spriteRenderer.flipX = false;
+                playerAnimator.FlipSprite(false);
             }
             else if (playerAnimator.horizontalAxis < 0)
             {
-                playerAnimator.spriteRenderer.flipX = true;
+                playerAnimator.FlipSprite(true);
             }
 
             if (!playerAnimator.playerController.GetIsMoving
@@ -426,15 +431,6 @@ public class PlayerAnimator : MonoBehaviour
         {
             if (playerAnimator.CurrentAnimationEnded())
             {
-                if (playerAnimator.horizontalAxis > 0)
-                {
-                    playerAnimator.spriteRenderer.flipX = false;
-                }
-                else if (playerAnimator.horizontalAxis < 0)
-                {
-                    playerAnimator.spriteRenderer.flipX = true;
-                }
-
                 if (!playerAnimator.playerController.GetIsMoving
                      && playerAnimator.playerController.GetIsGrounded)
                 {
@@ -485,11 +481,11 @@ public class PlayerAnimator : MonoBehaviour
         {
             if (playerAnimator.horizontalAxis > 0)
             {
-                playerAnimator.spriteRenderer.flipX = false;
+                playerAnimator.FlipSprite(false);
             }
             else if (playerAnimator.horizontalAxis < 0)
             {
-                playerAnimator.spriteRenderer.flipX = true;
+                playerAnimator.FlipSprite(true);
             }
 
             if (!playerAnimator.playerController.GetIsMoving
@@ -549,11 +545,11 @@ public class PlayerAnimator : MonoBehaviour
         {
             if (playerAnimator.horizontalAxis > 0)
             {
-                playerAnimator.spriteRenderer.flipX = false;
+                playerAnimator.FlipSprite(false);
             }
             else if (playerAnimator.horizontalAxis < 0)
             {
-                playerAnimator.spriteRenderer.flipX = true;
+                playerAnimator.FlipSprite(true);
             }
 
             if (playerAnimator.playerController.GetIsFalling)
