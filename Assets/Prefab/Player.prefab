@@ -294,4 +294,6 @@ MonoBehaviour:
   playerController: {fileID: 8038965960095469775}
   rb2d: {fileID: -2057887317093938310}
   animator: {fileID: 1121340700123682060}
+  spriteRenderer: {fileID: 7351984064621592073}
   player: {fileID: 3342596042176603546}
+  stillTimeToIdleFromMove: 0.25

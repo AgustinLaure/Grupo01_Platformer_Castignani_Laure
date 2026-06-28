@@ -49,6 +49,7 @@ public class PlayerController : MonoBehaviour
     public bool GetIsMoving { get { return horizontalAxis > epsilon || horizontalAxis < -epsilon; } }
     public bool GetIsWalking { get { return GetIsMoving && !Input.GetButton("Run"); } }
     public bool GetIsRunning { get { return Input.GetButton("Run"); } }
+    public float GetHorizontalAxis { get { return horizontalAxis; } }
 
     private void Update()
     {

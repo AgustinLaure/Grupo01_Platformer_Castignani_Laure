@@ -9,6 +9,7 @@ public class PlayerAnimator : MonoBehaviour
     [SerializeField] private PlayerController playerController;
     [SerializeField] private Rigidbody2D rb2d;
     [SerializeField] private Animator animator;
+    [SerializeField] private SpriteRenderer spriteRenderer;
     [SerializeField] private GameObject player;
 
     private readonly string controllerStateName = "State";
@@ -19,6 +20,8 @@ public class PlayerAnimator : MonoBehaviour
     private FSM fsm;
 
     private Dictionary<Type, IState> states;
+
+    private float prevHorizontalAxis = 0f;
 
     private void Awake()
     {
@@ -77,12 +80,29 @@ public class PlayerAnimator : MonoBehaviour
 
         fsm = new FSM(states);
         fsm.SetInitialState(typeof(IdleState));
+
+        prevHorizontalAxis = playerController.GetHorizontalAxis;
     }
 
     private void Update()
     {
+        float horizontalAxis = playerController.GetHorizontalAxis;
+
+        if (horizontalAxis > 0)
+        {
+            spriteRenderer.flipX = false;
+        }
+        else if (horizontalAxis < 0)
+        {
+            spriteRenderer.flipX = true;
+        }
+
         fsm.Update();
-        Debug.Log(animator.GetInteger(controllerStateHash));
+
+        Debug.Log("Curr: " + playerController.GetHorizontalAxis);
+        Debug.Log("Prev: " + prevHorizontalAxis);
+
+        prevHorizontalAxis = horizontalAxis;
     }
 
     private bool CurrentAnimationEnded()
@@ -180,7 +200,7 @@ public class PlayerAnimator : MonoBehaviour
     {
         private PlayerAnimator playerAnimator;
         private float timeStill = 0f;
-        
+
 
         public WalkState(PlayerAnimator playerAnimator)
         {
@@ -221,7 +241,7 @@ public class PlayerAnimator : MonoBehaviour
 
         public void Exit()
         {
-            
+
         }
 
         public void OnAttack()
