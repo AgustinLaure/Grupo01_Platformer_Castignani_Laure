@@ -1,3 +1,4 @@
+using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
@@ -7,20 +8,29 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Player player;
     [SerializeField] private GameObject winCondition;
 
-    [SerializeField] private CanvasGroup pauseScreenCanvasGroup;
     [SerializeField] private CanvasGroup endScreenCanvasGroup;
+    [SerializeField] private CanvasGroup pauseScreenCanvasGroup;
     [SerializeField] private Button pauseScreenResumeButton;
     [SerializeField] private Button pauseScreenMainMenuButton;
-    [SerializeField] private Button endScreenResumeButton;
+    [SerializeField] private Button endScreenContinueButton;
     [SerializeField] private Button endScreenMainMenuButton;
+    [SerializeField] private TextMeshProUGUI endScreenTitleText;
+
+    private const string loseText = "You lost!";
+    private const string winText = "You win!";
 
     private bool isPaused = false;
+    private bool hasLost = false;
 
     private AreaTrigger winConditionTrigger;
     private PlayerController playerController;
 
     public bool GetIsPaused { get { return isPaused; } }
 
+    private void Awake()
+    {
+        Cursor.lockState = CursorLockMode.Locked;
+    }
     private void Start()
     {
         playerController = player.GetComponent<PlayerController>();
@@ -32,7 +42,7 @@ public class GameManager : MonoBehaviour
 
         pauseScreenResumeButton.onClick.AddListener(HandleResumeButtonClick);
         pauseScreenMainMenuButton.onClick.AddListener(HandleMainMenuButtonClick);
-        endScreenResumeButton.onClick.AddListener(HandleResumeButtonClick);
+        endScreenContinueButton.onClick.AddListener(HandleContinueButtonClick);
         endScreenMainMenuButton.onClick.AddListener(HandleMainMenuButtonClick);
     }
 
@@ -44,7 +54,7 @@ public class GameManager : MonoBehaviour
 
         pauseScreenResumeButton.onClick.RemoveListener(HandleResumeButtonClick);
         pauseScreenMainMenuButton.onClick.RemoveListener(HandleMainMenuButtonClick);
-        endScreenResumeButton.onClick.RemoveListener(HandleResumeButtonClick);
+        endScreenContinueButton.onClick.RemoveListener(HandleContinueButtonClick);
         endScreenMainMenuButton.onClick.RemoveListener(HandleMainMenuButtonClick);
     }
 
@@ -59,14 +69,30 @@ public class GameManager : MonoBehaviour
         isPaused = state;
     }
 
-    private void HandlePlayerDeath()
+    private void EndGame()
     {
+        UiUtils.SetCanvasActive(endScreenCanvasGroup, true);
 
+        Time.timeScale = 0f;
+        Cursor.visible = true;
+        Cursor.lockState = CursorLockMode.None;
+
+        endScreenTitleText.text = hasLost ? loseText : winText;
     }
 
-    private void HandleWinTrigger()
+    private void HandlePlayerDeath()
     {
+        hasLost = true;
 
+        EndGame();
+    }
+
+    private void HandleWinTrigger(Collider2D collider)
+    {
+        if (collider.CompareTag("Player"))
+        {
+            EndGame();
+        }
     }
 
     private void HandlePlayerPause()
@@ -80,6 +106,10 @@ public class GameManager : MonoBehaviour
     }
 
     private void HandleMainMenuButtonClick()
+    {
+
+    }
+    private void HandleContinueButtonClick()
     {
 
     }

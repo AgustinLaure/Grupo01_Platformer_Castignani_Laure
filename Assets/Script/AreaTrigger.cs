@@ -3,9 +3,10 @@ using UnityEngine;
 
 public class AreaTrigger : MonoBehaviour
 {
-    public event Action OnTrigger;
-    private void OnCollisionEnter2D(Collision2D collision)
+    public event Action<Collider2D> OnTrigger;
+
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        OnTrigger?.Invoke();
+        OnTrigger?.Invoke(collision);
     }
 }
