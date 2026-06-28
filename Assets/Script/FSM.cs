@@ -17,6 +17,11 @@ public class FSM
         currentState.Update();
     }
 
+    public void SetInitialState(Type initialState)
+    {
+      statesDictionary.TryGetValue(initialState, out currentState);
+        currentState?.Enter();
+    }
     public void TryChange<T>(Type toState) where T : IState
     {
         if (currentState is T)
