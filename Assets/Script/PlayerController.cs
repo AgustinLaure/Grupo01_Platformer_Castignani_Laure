@@ -27,6 +27,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float jumpImpulse;
 
     [SerializeField] private Rigidbody2D rb;
+    [SerializeField] private Player player;
     [SerializeField] private LayerMask environmentLayer;
     [SerializeField] private GameObject attackArea;
     [SerializeField] private PlayerAnimator playerAnimator;
@@ -58,23 +59,26 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
-        horizontalAxis = Input.GetAxisRaw("Horizontal");
-
-        UpdateMoveState();
-
-        isGrounded = Physics2D.OverlapBox(groundCheck.transform.position, groundCheckSize, transform.rotation.eulerAngles.z, environmentLayer);
-
-        if (Input.GetButtonDown("Jump") && isGrounded)
+        if (!player.IsDead)
         {
-            tryJump = true;
-            OnPlayerJump?.Invoke();
-        }
+            horizontalAxis = Input.GetAxisRaw("Horizontal");
 
-        if (Input.GetButtonDown("Attack"))
-        {
-            attackArea.gameObject.SetActive(true);
+            UpdateMoveState();
 
-            OnPlayerAttack?.Invoke();
+            isGrounded = Physics2D.OverlapBox(groundCheck.transform.position, groundCheckSize, transform.rotation.eulerAngles.z, environmentLayer);
+
+            if (Input.GetButtonDown("Jump") && isGrounded)
+            {
+                tryJump = true;
+                OnPlayerJump?.Invoke();
+            }
+
+            if (Input.GetButtonDown("Attack"))
+            {
+                attackArea.gameObject.SetActive(true);
+
+                OnPlayerAttack?.Invoke();
+            }
         }
     }
 

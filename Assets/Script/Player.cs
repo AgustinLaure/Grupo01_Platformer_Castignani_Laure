@@ -7,11 +7,16 @@ public class Player : MonoBehaviour
     [SerializeField] private float initialCurrentHealth;
     [SerializeField] private float initialMaxHealth;
 
+    private bool isDead = false;
+
     public HealthPoints GetHealthPoints { get { return healthPoints; } }
+    public bool IsDead { get { return isDead; } }
 
     private void Awake()
     {
         healthPoints = new HealthPoints(initialCurrentHealth, initialMaxHealth);
+
+        healthPoints.OnDie += HandleDie;
     }
     void Start()
     {
@@ -28,6 +33,11 @@ public class Player : MonoBehaviour
         Debug.Log("Health: " + healthPoints.GetCurrentHealth + " / " + healthPoints.GetMaxHealth);
     }
 
+    private void OnDestroy()
+    {
+        healthPoints.OnDie -= HandleDie;
+    }
+
     private void HandleTakeDamage()
     {
 
@@ -35,6 +45,6 @@ public class Player : MonoBehaviour
 
     private void HandleDie()
     {
-
+        isDead = true;
     }
 }

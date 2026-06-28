@@ -412,6 +412,7 @@ MonoBehaviour:
   runAcceleration: 100
   jumpImpulse: 8
   rb: {fileID: -2057887317093938310}
+  player: {fileID: 6915439413308225305}
   environmentLayer:
     serializedVersion: 2
     m_Bits: 64
