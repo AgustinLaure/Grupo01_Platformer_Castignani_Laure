@@ -3,15 +3,43 @@ using UnityEngine;
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private Player player;
-    [SerializeField] private AreaTr
-    void Start()
+    [SerializeField] private AreaTrigger winTrigger;
+
+    private PlayerController playerController;
+
+    private void Start()
     {
-        
+        playerController = player.GetComponent<PlayerController>();
+
+        playerController.OnPlayerPause += HandlePlayerPause;
+        player.GetHealthPoints.OnDie += HandlePlayerDeath;
+        winTrigger.OnTrigger += HandleWinTrigger;
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
+
+    }
+
+    private void OnDestroy()
+    {
+        playerController.OnPlayerPause -= HandlePlayerPause;
+        player.GetHealthPoints.OnDie -= HandlePlayerDeath;
+        winTrigger.OnTrigger -= HandleWinTrigger;
+    }
+
+    private void HandlePlayerDeath()
+    {
+
+    }
+
+    private void HandleWinTrigger()
+    {
+
+    }
+
+    private void HandlePlayerPause()
+    {
+
     }
 }

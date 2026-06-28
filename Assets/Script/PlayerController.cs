@@ -5,6 +5,7 @@ public class PlayerController : MonoBehaviour
 {
     public event Action OnPlayerJump;
     public event Action OnPlayerAttack;
+    public event Action OnPlayerPause;
     enum MoveState
     {
         None,
@@ -78,6 +79,11 @@ public class PlayerController : MonoBehaviour
                 attackArea.gameObject.SetActive(true);
 
                 OnPlayerAttack?.Invoke();
+            }
+
+            if (Input.GetButtonDown("Pause"))
+            {
+                OnPlayerPause?.Invoke(); 
             }
         }
     }
