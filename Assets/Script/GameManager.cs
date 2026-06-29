@@ -11,10 +11,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Button pauseScreenResumeButton;
     [SerializeField] private Button pauseScreenMainMenuButton;
 
-    [SerializeField] private TextMeshProUGUI endScreenTitleText;
     [SerializeField] private CanvasGroup endScreenCanvasGroup;
     [SerializeField] private Button endScreenContinueButton;
     [SerializeField] private Button endScreenMainMenuButton;
+
+    [SerializeField] private Image endScreenTitle;
+    [SerializeField] private Sprite loseTitleSprite;
+    [SerializeField] private Sprite winTitleSprite;
 
     [SerializeField] private AudioSource winSound;
 
@@ -85,7 +88,7 @@ public class GameManager : MonoBehaviour
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
-        endScreenTitleText.text = hasLost ? loseText : winText;
+        endScreenTitle.sprite = hasLost ? loseTitleSprite : winTitleSprite;
 
         player.CanMove = false;
     }
@@ -93,7 +96,7 @@ public class GameManager : MonoBehaviour
     private void HandlePlayerDeath()
     {
         hasLost = true;
-        
+
         EndGame();
     }
 
