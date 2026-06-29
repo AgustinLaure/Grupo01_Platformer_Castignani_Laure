@@ -1,6 +1,7 @@
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
@@ -8,13 +9,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Player player;
     [SerializeField] private GameObject winCondition;
 
-    [SerializeField] private CanvasGroup endScreenCanvasGroup;
     [SerializeField] private CanvasGroup pauseScreenCanvasGroup;
     [SerializeField] private Button pauseScreenResumeButton;
     [SerializeField] private Button pauseScreenMainMenuButton;
+
+    [SerializeField] private TextMeshProUGUI endScreenTitleText;
+    [SerializeField] private CanvasGroup endScreenCanvasGroup;
     [SerializeField] private Button endScreenContinueButton;
     [SerializeField] private Button endScreenMainMenuButton;
-    [SerializeField] private TextMeshProUGUI endScreenTitleText;
 
     private const string loseText = "You lost!";
     private const string winText = "You win!";
@@ -30,6 +32,8 @@ public class GameManager : MonoBehaviour
     private void Awake()
     {
         Cursor.lockState = CursorLockMode.Locked;
+
+        Time.timeScale = 1f;
     }
     private void Start()
     {
@@ -111,6 +115,6 @@ public class GameManager : MonoBehaviour
     }
     private void HandleContinueButtonClick()
     {
-
+        SceneManager.LoadScene("Gameplay");
     }
 }
