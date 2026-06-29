@@ -87,9 +87,6 @@ public class PlayerController : MonoBehaviour
             }
         }
     }
-
-    
-
     private void UpdateMoveState()
     {
         switch (moveState)
