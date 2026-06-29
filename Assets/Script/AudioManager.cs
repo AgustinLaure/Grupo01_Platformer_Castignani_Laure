@@ -64,10 +64,5 @@ public class AudioManager
 
         PlayerPrefs.Save();
     }
-
-    ~AudioManager()
-    {
-        SaveConfig();
-    }
 }
 

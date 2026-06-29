@@ -14,6 +14,9 @@ public static class BootStrapper
         AudioSource audioSource = audioManagerObject.AddComponent<AudioSource>();
         audioSource.clip = Resources.Load<AudioClip>("click_sound");
 
+        AudioMixerGroup[] sfxGroups = audioMixer.FindMatchingGroups("Sfx");
+        audioSource.outputAudioMixerGroup = sfxGroups[0];
+
         ServiceLocator.Instance.AddService(new AudioManager(audioMixer, audioSource));
     }
 }
