@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-public static class ServiceLocator
+public class ServiceLocator : Singleton<ServiceLocator>
 {
-    private static readonly Dictionary<Type, object> _services = new Dictionary<Type, object>();
+    private readonly Dictionary<Type, object> _services = new Dictionary<Type, object>();
 
-    public static void AddService<T>(T service) where T : class
+    public void AddService<T>(T service) where T : class
     {
         var type = typeof(T);
 
@@ -16,7 +16,7 @@ public static class ServiceLocator
         }
     }
 
-    public static void RemoveService<T>(T service) where T : class
+    public void RemoveService<T>(T service) where T : class
     {
         var type = typeof(T);
 
@@ -30,7 +30,7 @@ public static class ServiceLocator
         }
     }
 
-    public static T GetService<T>() where T : class
+    public T GetService<T>() where T : class
     {
         var type = typeof(T);
 
@@ -43,6 +43,6 @@ public static class ServiceLocator
         return null;
     }
 
-    public static void ClearServices() => _services.Clear();
+    public void ClearServices() => _services.Clear();
 }
 
