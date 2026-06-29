@@ -16,11 +16,19 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private Button creditsScreenBackButton;
     [SerializeField] private Button settingsScreenBackButton;
 
+    [SerializeField] private Slider masterVolumeSlider;
+    [SerializeField] private Slider sfxVolumeSlider;
+    [SerializeField] private Slider musicVolumeSlider;
+
     private void Awake()
     {
 #if UNITY_WEBGL
         titleScreenExitButton.interactable = false;
 #endif
+
+        masterVolumeSlider.value = AudioManager.Instance.MasterVolume;
+        sfxVolumeSlider.value = AudioManager.Instance.SfxVolume;
+        musicVolumeSlider.value = AudioManager.Instance.MusicVolume;
 
         titleScreenPlayButton.onClick.AddListener(HandleTitlePlayButtonClick);
         titleScreenSettingsButton.onClick.AddListener(HandleTitleSettingsButtonClick);
@@ -28,43 +36,73 @@ public class MainMenu : MonoBehaviour
         titleScreenExitButton.onClick.AddListener(HandleTitleExitButtonClick);
         creditsScreenBackButton.onClick.AddListener(HandleCreditsBackButtonClick);
         settingsScreenBackButton.onClick.AddListener(HandleSettingsBackButtonClick);
+
+        masterVolumeSlider.onValueChanged.AddListener(HandleMasterVolumeChanged);
+        sfxVolumeSlider.onValueChanged.AddListener(HandleSfxVolumeChanged);
+        musicVolumeSlider.onValueChanged.AddListener(HandleMusicVolumeChanged);
     }
     private void HandleTitlePlayButtonClick()
     {
         SceneManager.LoadScene("Gameplay");
+        AudioManager.Instance.ButtonPressedSound.Play();
     }
 
     private void HandleTitleSettingsButtonClick()
     {
         UiUtils.SetCanvasActive(titleScreenCanvasGroup, false);
         UiUtils.SetCanvasActive(settingsScreenCanvasGroup, true);
+
+        AudioManager.Instance.ButtonPressedSound.Play();
     }
 
     private void HandleTitleCreditsButtonClick()
     {
         UiUtils.SetCanvasActive(titleScreenCanvasGroup, false);
         UiUtils.SetCanvasActive(creditsScreenCanvasGroup, true);
+
+        AudioManager.Instance.ButtonPressedSound.Play();
     }
 
     private void HandleCreditsBackButtonClick()
     {
         UiUtils.SetCanvasActive(titleScreenCanvasGroup, true);
         UiUtils.SetCanvasActive(creditsScreenCanvasGroup, false);
+
+        AudioManager.Instance.ButtonPressedSound.Play();
     }
 
     private void HandleSettingsBackButtonClick()
     {
         UiUtils.SetCanvasActive(titleScreenCanvasGroup, true);
         UiUtils.SetCanvasActive(settingsScreenCanvasGroup, false);
+
+        AudioManager.Instance.ButtonPressedSound.Play();
     }
 
     private void HandleTitleExitButtonClick()
     {
+        AudioManager.Instance.ButtonPressedSound.Play();
+
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
         Application.Quit();
 #endif
+    }
+
+    private void HandleMasterVolumeChanged(float value)
+    {
+        AudioManager.Instance.MasterVolume = value;
+    }
+
+    private void HandleSfxVolumeChanged(float value)
+    {
+        AudioManager.Instance.SfxVolume = value;
+    }
+
+    private void HandleMusicVolumeChanged(float value)
+    {
+        AudioManager.Instance.MusicVolume = value;
     }
 
     private void OnDestroy()
@@ -75,5 +113,8 @@ public class MainMenu : MonoBehaviour
         titleScreenExitButton.onClick.RemoveListener(HandleTitleExitButtonClick);
         creditsScreenBackButton.onClick.RemoveListener(HandleCreditsBackButtonClick);
         settingsScreenBackButton.onClick.RemoveListener(HandleSettingsBackButtonClick);
+        masterVolumeSlider.onValueChanged.RemoveListener(HandleMasterVolumeChanged);
+        sfxVolumeSlider.onValueChanged.RemoveListener(HandleSfxVolumeChanged);
+        musicVolumeSlider.onValueChanged.RemoveListener(HandleMusicVolumeChanged);
     }
 }
