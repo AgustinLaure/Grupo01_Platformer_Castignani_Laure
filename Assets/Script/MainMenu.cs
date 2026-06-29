@@ -6,6 +6,7 @@ public class MainMenu : MonoBehaviour
 {
     [SerializeField] private CanvasGroup titleScreenCanvasGroup;
     [SerializeField] private CanvasGroup creditsScreenCanvasGroup;
+    [SerializeField] private CanvasGroup settingsScreenCanvasGroup;
 
     [SerializeField] private Button titleScreenPlayButton;
     [SerializeField] private Button titleScreenSettingsButton;
@@ -13,6 +14,7 @@ public class MainMenu : MonoBehaviour
     [SerializeField] private Button titleScreenExitButton;
 
     [SerializeField] private Button creditsScreenBackButton;
+    [SerializeField] private Button settingsScreenBackButton;
 
     private void Awake()
     {
@@ -25,6 +27,7 @@ public class MainMenu : MonoBehaviour
         titleScreenCreditsButton.onClick.AddListener(HandleTitleCreditsButtonClick);
         titleScreenExitButton.onClick.AddListener(HandleTitleExitButtonClick);
         creditsScreenBackButton.onClick.AddListener(HandleCreditsBackButtonClick);
+        settingsScreenBackButton.onClick.AddListener(HandleSettingsBackButtonClick);
     }
     private void HandleTitlePlayButtonClick()
     {
@@ -33,7 +36,8 @@ public class MainMenu : MonoBehaviour
 
     private void HandleTitleSettingsButtonClick()
     {
-
+        UiUtils.SetCanvasActive(titleScreenCanvasGroup, false);
+        UiUtils.SetCanvasActive(settingsScreenCanvasGroup, true);
     }
 
     private void HandleTitleCreditsButtonClick()
@@ -46,6 +50,12 @@ public class MainMenu : MonoBehaviour
     {
         UiUtils.SetCanvasActive(titleScreenCanvasGroup, true);
         UiUtils.SetCanvasActive(creditsScreenCanvasGroup, false);
+    }
+
+    private void HandleSettingsBackButtonClick()
+    {
+        UiUtils.SetCanvasActive(titleScreenCanvasGroup, true);
+        UiUtils.SetCanvasActive(settingsScreenCanvasGroup, false);
     }
 
     private void HandleTitleExitButtonClick()
@@ -64,5 +74,6 @@ public class MainMenu : MonoBehaviour
         titleScreenCreditsButton.onClick.RemoveListener(HandleTitleCreditsButtonClick);
         titleScreenExitButton.onClick.RemoveListener(HandleTitleExitButtonClick);
         creditsScreenBackButton.onClick.RemoveListener(HandleCreditsBackButtonClick);
+        settingsScreenBackButton.onClick.RemoveListener(HandleSettingsBackButtonClick);
     }
 }
