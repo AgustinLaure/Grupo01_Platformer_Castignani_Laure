@@ -16,6 +16,8 @@ public class MeleeEnemy : Enemy
 
     private void Awake()
     {
+        attackArea.GetComponent<AreaTrigger>();
+
         attackAreaTrigger.OnTrigger += HandleAttackAreaCollision;
     }
 
