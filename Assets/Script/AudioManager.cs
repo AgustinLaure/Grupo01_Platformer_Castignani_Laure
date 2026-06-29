@@ -3,12 +3,15 @@ using UnityEngine.Audio;
 
 public class AudioManager
 {
+    private const float epsilon = 1e-06f;
+    private const float decibelConst = 20f;
+
     private AudioMixer audioMixer;
     private AudioSource buttonPressedSound;
 
-    private const float initialMasterVolume = 0f;
-    private const float initialSfxVolume = 0f;
-    private const float initialMusicVolume = 0f;
+    private const float initialMasterVolume = 1f;
+    private const float initialSfxVolume = 1f;
+    private const float initialMusicVolume = 1f;
 
     private string wasGameOpenedBefore = "WasGameOpenedBefore";
     private const string masterVolumeKey = "MasterVolume";
@@ -19,9 +22,9 @@ public class AudioManager
     private float sfxVolume;
     private float musicVolume;
 
-    public float MasterVolume { get { return masterVolume; } set { masterVolume = value; audioMixer.SetFloat(masterVolumeKey, masterVolume); } }
-    public float SfxVolume { get { return sfxVolume; } set { sfxVolume = value; audioMixer.SetFloat(sfxVolumeKey, sfxVolume); } }
-    public float MusicVolume { get { return musicVolume; } set { musicVolume = value; audioMixer.SetFloat(musicVolumeKey, musicVolume); } }
+    public float MasterVolume { get { return masterVolume; } set { masterVolume = value; audioMixer.SetFloat(masterVolumeKey, LinearToDecibel(masterVolume)); SaveConfig(); } }
+    public float SfxVolume { get { return sfxVolume; } set { sfxVolume = value; audioMixer.SetFloat(sfxVolumeKey, LinearToDecibel(sfxVolume)); SaveConfig(); } }
+    public float MusicVolume { get { return musicVolume; } set { musicVolume = value; audioMixer.SetFloat(musicVolumeKey, LinearToDecibel(musicVolume)); SaveConfig(); } }
     public AudioSource ButtonPressedSound { get { return buttonPressedSound; } private set { } }
 
     public AudioManager(AudioMixer audioMixer, AudioSource buttonPressedSound)
@@ -49,6 +52,11 @@ public class AudioManager
         UpdateAudioMixerValues();
     }
 
+    private float LinearToDecibel(float value)
+    {
+        return Mathf.Log10(Mathf.Clamp(value, epsilon, 1f)) * decibelConst;
+    }
+
     private void UpdateAudioMixerValues()
     {
         audioMixer.SetFloat(masterVolumeKey, masterVolume);
@@ -56,7 +64,7 @@ public class AudioManager
         audioMixer.SetFloat(musicVolumeKey, musicVolume);
     }
 
-    private void SaveConfig()
+    public void SaveConfig()
     {
         PlayerPrefs.SetFloat(masterVolumeKey, masterVolume);
         PlayerPrefs.SetFloat(sfxVolumeKey, sfxVolume);
