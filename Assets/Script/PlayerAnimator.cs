@@ -6,7 +6,6 @@ public class PlayerAnimator : MonoBehaviour
 {
     public event Action OnFinishAttack;
 
-    [SerializeField] private GameObject playerObject;
     [SerializeField] private GameObject playerRender;
     [SerializeField] private Transform playerAttackAreaPivot;
 
@@ -34,18 +33,18 @@ public class PlayerAnimator : MonoBehaviour
 
     private void Awake()
     {
-        playerController = playerObject.GetComponent<PlayerController>();
-        playerRb = playerObject.GetComponent<Rigidbody2D>();
-        playerAnimator = playerRender.GetComponent<Animator>();
-        playerSpriteRenderer = playerRender.GetComponent<SpriteRenderer>();
-        playerHealthPoints = playerObject.GetComponent<Player>().GetHealthPoints;
-
         controllerStateHash = Animator.StringToHash(controllerStateVarName);
         attackAnimHash = Animator.StringToHash(attackStateName);
         hurtAnimHash = Animator.StringToHash(hurtStateName);
     }
     private void Start()
     {
+        playerAnimator = playerRender.GetComponent<Animator>();
+        playerSpriteRenderer = playerRender.GetComponent<SpriteRenderer>();
+        playerController = gameObject.GetComponent<PlayerController>();
+        playerRb = gameObject.GetComponent<Rigidbody2D>();
+        playerHealthPoints = gameObject.GetComponent<Player>().GetHealthPoints;
+
         IdleState idleState = new IdleState(this);
         playerController.OnPlayerAttack += idleState.OnAttack;
         playerController.OnPlayerJump += idleState.OnJump;
@@ -131,6 +130,11 @@ public class PlayerAnimator : MonoBehaviour
 
     private void OnDestroy()
     {
+        if (states == null || playerController == null || playerHealthPoints == null)
+        {
+            return;
+        }
+
         IState auxState;
 
         states.TryGetValue(typeof(IdleState), out auxState);
