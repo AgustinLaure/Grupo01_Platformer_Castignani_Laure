@@ -572,7 +572,7 @@ MonoBehaviour:
   walkTerminalVelocity: 4
   runTerminalVelocity: 6
   groundCheck: {fileID: 950416432635453081}
-  groundCheckSize: {x: 0.75, y: -0.01}
+  groundCheckSize: {x: 0.75, y: 0.04}
 --- !u!114 &2885574476845857708
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -585,7 +585,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da39be2de4faf194bbe75b21eb5f8832, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerAnimator
-  playerObject: {fileID: 3342596042176603546}
   playerRender: {fileID: 830466206702753527}
   playerAttackAreaPivot: {fileID: 5386901608712734928}
   stillTimeToIdleFromMove: 0.25

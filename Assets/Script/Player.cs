@@ -22,20 +22,6 @@ public class Player : MonoBehaviour
         healthPoints.OnDie += HandleDie;
         attackAreaTrigger.OnTrigger += HandleAttackAreaTrigger;
     }
-    void Start()
-    {
-
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            healthPoints.TakeDamage(5f);
-        }
-
-        Debug.Log("Health: " + healthPoints.GetCurrentHealth + " / " + healthPoints.GetMaxHealth);
-    }
 
     private void HandleAttackAreaTrigger(Collider2D collider)
     {
