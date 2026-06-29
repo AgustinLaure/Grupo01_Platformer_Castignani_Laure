@@ -1,10 +1,10 @@
 using UnityEngine;
 using UnityEngine.Audio;
 
-public class AudioManager : MonoSingleton<AudioManager>
+public class AudioManager
 {
-    [SerializeField] private AudioMixer audioMixer;
-    [SerializeField] private AudioSource buttonPressedSound;
+    private AudioMixer audioMixer;
+    private AudioSource buttonPressedSound;
 
     private const float initialMasterVolume = 0f;
     private const float initialSfxVolume = 0f;
@@ -24,8 +24,11 @@ public class AudioManager : MonoSingleton<AudioManager>
     public float MusicVolume { get { return musicVolume; } set { musicVolume = value; audioMixer.SetFloat(musicVolumeKey, musicVolume); } }
     public AudioSource ButtonPressedSound { get { return buttonPressedSound; } private set { } }
 
-    protected override void OnAwaken()
+    public AudioManager(AudioMixer audioMixer, AudioSource buttonPressedSound)
     {
+        this.audioMixer = audioMixer;
+        this.buttonPressedSound = buttonPressedSound;
+
         if (PlayerPrefs.HasKey(wasGameOpenedBefore))
         {
             masterVolume = PlayerPrefs.GetFloat(masterVolumeKey);
@@ -42,16 +45,8 @@ public class AudioManager : MonoSingleton<AudioManager>
 
             SaveConfig();
         }
-    }
 
-    private void Start()
-    {
         UpdateAudioMixerValues();
-    }
-
-    private void Update()
-    {
-        Debug.Log("Master volume: "+masterVolume);
     }
 
     private void UpdateAudioMixerValues()
@@ -70,7 +65,7 @@ public class AudioManager : MonoSingleton<AudioManager>
         PlayerPrefs.Save();
     }
 
-    protected override void OnDestroyed()
+    ~AudioManager()
     {
         SaveConfig();
     }

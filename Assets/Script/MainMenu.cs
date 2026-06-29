@@ -26,10 +26,6 @@ public class MainMenu : MonoBehaviour
         titleScreenExitButton.interactable = false;
 #endif
 
-        masterVolumeSlider.value = AudioManager.Instance.MasterVolume;
-        sfxVolumeSlider.value = AudioManager.Instance.SfxVolume;
-        musicVolumeSlider.value = AudioManager.Instance.MusicVolume;
-
         titleScreenPlayButton.onClick.AddListener(HandleTitlePlayButtonClick);
         titleScreenSettingsButton.onClick.AddListener(HandleTitleSettingsButtonClick);
         titleScreenCreditsButton.onClick.AddListener(HandleTitleCreditsButtonClick);
@@ -41,10 +37,18 @@ public class MainMenu : MonoBehaviour
         sfxVolumeSlider.onValueChanged.AddListener(HandleSfxVolumeChanged);
         musicVolumeSlider.onValueChanged.AddListener(HandleMusicVolumeChanged);
     }
+
+    private void Start()
+    {
+        masterVolumeSlider.value = ServiceLocator.Instance.GetService<AudioManager>().MasterVolume;
+        sfxVolumeSlider.value = ServiceLocator.Instance.GetService<AudioManager>().SfxVolume;
+        musicVolumeSlider.value = ServiceLocator.Instance.GetService<AudioManager>().MusicVolume;
+    }
+
     private void HandleTitlePlayButtonClick()
     {
         SceneManager.LoadScene("Gameplay");
-        AudioManager.Instance.ButtonPressedSound.Play();
+        ServiceLocator.Instance.GetService<AudioManager>().ButtonPressedSound.Play();
     }
 
     private void HandleTitleSettingsButtonClick()
@@ -52,7 +56,7 @@ public class MainMenu : MonoBehaviour
         UiUtils.SetCanvasActive(titleScreenCanvasGroup, false);
         UiUtils.SetCanvasActive(settingsScreenCanvasGroup, true);
 
-        AudioManager.Instance.ButtonPressedSound.Play();
+        ServiceLocator.Instance.GetService<AudioManager>().ButtonPressedSound.Play();
     }
 
     private void HandleTitleCreditsButtonClick()
@@ -60,7 +64,7 @@ public class MainMenu : MonoBehaviour
         UiUtils.SetCanvasActive(titleScreenCanvasGroup, false);
         UiUtils.SetCanvasActive(creditsScreenCanvasGroup, true);
 
-        AudioManager.Instance.ButtonPressedSound.Play();
+        ServiceLocator.Instance.GetService<AudioManager>().ButtonPressedSound.Play();
     }
 
     private void HandleCreditsBackButtonClick()
@@ -68,7 +72,7 @@ public class MainMenu : MonoBehaviour
         UiUtils.SetCanvasActive(titleScreenCanvasGroup, true);
         UiUtils.SetCanvasActive(creditsScreenCanvasGroup, false);
 
-        AudioManager.Instance.ButtonPressedSound.Play();
+        ServiceLocator.Instance.GetService<AudioManager>().ButtonPressedSound.Play();
     }
 
     private void HandleSettingsBackButtonClick()
@@ -76,12 +80,12 @@ public class MainMenu : MonoBehaviour
         UiUtils.SetCanvasActive(titleScreenCanvasGroup, true);
         UiUtils.SetCanvasActive(settingsScreenCanvasGroup, false);
 
-        AudioManager.Instance.ButtonPressedSound.Play();
+        ServiceLocator.Instance.GetService<AudioManager>().ButtonPressedSound.Play();
     }
 
     private void HandleTitleExitButtonClick()
     {
-        AudioManager.Instance.ButtonPressedSound.Play();
+        ServiceLocator.Instance.GetService<AudioManager>().ButtonPressedSound.Play();
 
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
@@ -92,17 +96,17 @@ public class MainMenu : MonoBehaviour
 
     private void HandleMasterVolumeChanged(float value)
     {
-        AudioManager.Instance.MasterVolume = value;
+        ServiceLocator.Instance.GetService<AudioManager>().MasterVolume = value;
     }
 
     private void HandleSfxVolumeChanged(float value)
     {
-        AudioManager.Instance.SfxVolume = value;
+        ServiceLocator.Instance.GetService<AudioManager>().SfxVolume = value;
     }
 
     private void HandleMusicVolumeChanged(float value)
     {
-        AudioManager.Instance.MusicVolume = value;
+        ServiceLocator.Instance.GetService<AudioManager>().MusicVolume = value;
     }
 
     private void OnDestroy()
