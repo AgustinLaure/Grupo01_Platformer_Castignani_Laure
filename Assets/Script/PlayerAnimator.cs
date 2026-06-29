@@ -1,0 +1,644 @@
+using System.Collections.Generic;
+using System;
+using UnityEngine;
+
+public class PlayerAnimator : MonoBehaviour
+{
+    public event Action OnFinishAttack;
+
+    [SerializeField] private GameObject playerRender;
+    [SerializeField] private Transform playerAttackAreaPivot;
+
+    private PlayerController playerController;
+    private Rigidbody2D playerRb;
+    private Animator playerAnimator;
+    private SpriteRenderer playerSpriteRenderer;
+    private HealthPoints playerHealthPoints;
+
+    private readonly string controllerStateVarName = "State";
+    private readonly string attackStateName = "Attack";
+    private readonly string hurtStateName = "Hurt";
+    private int controllerStateHash;
+    private int attackAnimHash;
+    private int hurtAnimHash;
+
+    [SerializeField] private float stillTimeToIdleFromMove = 0.25f;
+
+    private FSM fsm;
+
+    private Dictionary<Type, IState> states;
+
+    private float horizontalAxis = 0f;
+    private float prevHorizontalAxis = 0f;
+
+    private void Awake()
+    {
+        controllerStateHash = Animator.StringToHash(controllerStateVarName);
+        attackAnimHash = Animator.StringToHash(attackStateName);
+        hurtAnimHash = Animator.StringToHash(hurtStateName);
+    }
+    private void Start()
+    {
+        playerAnimator = playerRender.GetComponent<Animator>();
+        playerSpriteRenderer = playerRender.GetComponent<SpriteRenderer>();
+        playerController = gameObject.GetComponent<PlayerController>();
+        playerRb = gameObject.GetComponent<Rigidbody2D>();
+        playerHealthPoints = gameObject.GetComponent<Player>().GetHealthPoints;
+
+        IdleState idleState = new IdleState(this);
+        playerController.OnPlayerAttack += idleState.OnAttack;
+        playerController.OnPlayerJump += idleState.OnJump;
+        playerHealthPoints.OnTakeDamage += idleState.OnHurt;
+        playerHealthPoints.OnDie += idleState.OnDie;
+
+        WalkState walkState = new WalkState(this);
+        playerController.OnPlayerAttack += walkState.OnAttack;
+        playerController.OnPlayerJump += walkState.OnJump;
+        playerHealthPoints.OnTakeDamage += walkState.OnHurt;
+        playerHealthPoints.OnDie += walkState.OnDie;
+
+        RunState runState = new RunState(this);
+        playerController.OnPlayerAttack += runState.OnAttack;
+        playerController.OnPlayerJump += runState.OnJump;
+        playerHealthPoints.OnTakeDamage += runState.OnHurt;
+        playerHealthPoints.OnDie += runState.OnDie;
+
+        FallState fallState = new FallState(this);
+        playerController.OnPlayerAttack += fallState.OnAttack;
+        playerController.OnPlayerJump += fallState.OnJump;
+        playerHealthPoints.OnTakeDamage += fallState.OnHurt;
+        playerHealthPoints.OnDie += fallState.OnDie;
+
+        AttackState attackState = new AttackState(this);
+        playerHealthPoints.OnDie += attackState.OnDie;
+
+        HurtState hurtState = new HurtState(this);
+        playerController.OnPlayerAttack += hurtState.OnAttack;
+        playerController.OnPlayerJump += hurtState.OnJump;
+        playerHealthPoints.OnDie += hurtState.OnDie;
+
+        JumpState jumpState = new JumpState(this);
+        playerController.OnPlayerAttack += jumpState.OnAttack;
+        playerHealthPoints.OnTakeDamage += jumpState.OnHurt;
+        playerHealthPoints.OnDie += jumpState.OnDie;
+
+        DeadState deadState = new DeadState(this);
+
+        states = new Dictionary<Type, IState>()
+        {
+            [typeof(IdleState)] = idleState,
+            [typeof(AttackState)] = attackState,
+            [typeof(WalkState)] = walkState,
+            [typeof(RunState)] = runState,
+            [typeof(FallState)] = fallState,
+            [typeof(HurtState)] = hurtState,
+            [typeof(JumpState)] = jumpState,
+            [typeof(DeadState)] = deadState
+        };
+
+        fsm = new FSM(states);
+        fsm.SetInitialState(typeof(IdleState));
+
+        prevHorizontalAxis = playerController.GetHorizontalAxis;
+    }
+
+    private void Update()
+    {
+        horizontalAxis = playerController.GetHorizontalAxis;
+
+        fsm.Update();
+
+        prevHorizontalAxis = horizontalAxis;
+    }
+
+    private bool CurrentAnimationEnded(int currentAnimHash)
+    {
+        AnimatorStateInfo animatorInfo = playerAnimator.GetCurrentAnimatorStateInfo(0);
+
+        return animatorInfo.normalizedTime >= 1f && animatorInfo.shortNameHash == currentAnimHash;
+    }
+
+    private void FlipCharacter(bool isFlipped)
+    {
+        float angle = isFlipped ? 180f : 0;
+
+        Quaternion newRotation = new Quaternion(0f, 0f, angle, 1f);
+
+        playerAttackAreaPivot.rotation = newRotation;
+        playerSpriteRenderer.flipX = isFlipped;
+    }
+
+    private void OnDestroy()
+    {
+        if (states == null || playerController == null || playerHealthPoints == null)
+        {
+            return;
+        }
+
+        IState auxState;
+
+        states.TryGetValue(typeof(IdleState), out auxState);
+        playerController.OnPlayerAttack -= ((IdleState)auxState).OnAttack;
+        playerController.OnPlayerJump -= ((IdleState)auxState).OnJump;
+        playerHealthPoints.OnTakeDamage -= ((IdleState)auxState).OnHurt;
+        playerHealthPoints.OnDie -= ((IdleState)auxState).OnDie;
+
+        states.TryGetValue(typeof(WalkState), out auxState);
+        playerController.OnPlayerAttack -= ((WalkState)auxState).OnAttack;
+        playerController.OnPlayerJump -= ((WalkState)auxState).OnJump;
+        playerHealthPoints.OnTakeDamage -= ((WalkState)auxState).OnHurt;
+        playerHealthPoints.OnDie -= ((WalkState)auxState).OnDie;
+
+        states.TryGetValue(typeof(RunState), out auxState);
+        playerController.OnPlayerAttack -= ((RunState)auxState).OnAttack;
+        playerController.OnPlayerJump -= ((RunState)auxState).OnJump;
+        playerHealthPoints.OnTakeDamage -= ((RunState)auxState).OnHurt;
+        playerHealthPoints.OnDie -= ((RunState)auxState).OnDie;
+
+        states.TryGetValue(typeof(FallState), out auxState);
+        playerController.OnPlayerAttack -= ((FallState)auxState).OnAttack;
+        playerController.OnPlayerJump -= ((FallState)auxState).OnJump;
+        playerHealthPoints.OnTakeDamage -= ((FallState)auxState).OnHurt;
+        playerHealthPoints.OnDie -= ((FallState)auxState).OnDie;
+
+        states.TryGetValue(typeof(AttackState), out auxState);
+        playerHealthPoints.OnDie -= ((AttackState)auxState).OnDie;
+
+        states.TryGetValue(typeof(HurtState), out auxState);
+        playerController.OnPlayerAttack -= ((HurtState)auxState).OnAttack;
+        playerController.OnPlayerJump -= ((HurtState)auxState).OnJump;
+        playerHealthPoints.OnDie -= ((HurtState)auxState).OnDie;
+
+        states.TryGetValue(typeof(JumpState), out auxState);
+        playerController.OnPlayerAttack -= ((JumpState)auxState).OnAttack;
+        playerHealthPoints.OnTakeDamage -= ((JumpState)auxState).OnHurt;
+        playerHealthPoints.OnDie -= ((JumpState)auxState).OnDie;
+    }
+
+    private class IdleState : IState
+    {
+        private PlayerAnimator playerAnimator;
+
+        public IdleState(PlayerAnimator playerAnimator)
+        {
+            this.playerAnimator = playerAnimator;
+        }
+        public void Enter()
+        {
+            playerAnimator.playerAnimator.SetInteger(playerAnimator.controllerStateHash, 0);
+        }
+
+        public void Update()
+        {
+            if (playerAnimator.horizontalAxis > 0)
+            {
+                playerAnimator.FlipCharacter(false);
+            }
+            else if (playerAnimator.horizontalAxis < 0)
+            {
+                playerAnimator.FlipCharacter(true);
+            }
+
+            if (playerAnimator.playerController.GetIsWalking
+                && playerAnimator.playerController.GetIsGrounded)
+            {
+                playerAnimator.fsm.TryChange<IdleState>(typeof(WalkState));
+            }
+            else if (playerAnimator.playerController.GetIsRunning
+                 && playerAnimator.playerController.GetIsGrounded)
+            {
+                playerAnimator.fsm.TryChange<IdleState>(typeof(RunState));
+            }
+            else if (playerAnimator.playerController.GetIsFalling)
+            {
+                playerAnimator.fsm.TryChange<IdleState>(typeof(FallState));
+            }
+        }
+
+        public void Exit()
+        {
+
+        }
+
+        public void OnAttack()
+        {
+            playerAnimator.fsm.TryChange<IdleState>(typeof(AttackState));
+        }
+
+        public void OnHurt()
+        {
+            playerAnimator.fsm.TryChange<IdleState>(typeof(HurtState));
+        }
+        public void OnJump()
+        {
+            playerAnimator.fsm.TryChange<IdleState>(typeof(JumpState));
+        }
+
+        public void OnDie()
+        {
+            playerAnimator.fsm.TryChange<IdleState>(typeof(DeadState));
+        }
+    }
+
+    private class WalkState : IState
+    {
+        private PlayerAnimator playerAnimator;
+        private float timeStill = 0f;
+
+
+        public WalkState(PlayerAnimator playerAnimator)
+        {
+            this.playerAnimator = playerAnimator;
+        }
+        public void Enter()
+        {
+            playerAnimator.playerAnimator.SetInteger(playerAnimator.controllerStateHash, 1);
+            timeStill = 0f;
+        }
+
+        public void Update()
+        {
+            if (playerAnimator.horizontalAxis > 0)
+            {
+                playerAnimator.FlipCharacter(false);
+            }
+            else if (playerAnimator.horizontalAxis < 0)
+            {
+                playerAnimator.FlipCharacter(true);
+            }
+
+            if (!playerAnimator.playerController.GetIsMoving
+                && playerAnimator.playerController.GetIsGrounded)
+            {
+                timeStill += Time.deltaTime;
+            }
+            else
+            {
+                timeStill = 0f;
+            }
+
+            if (timeStill >= playerAnimator.stillTimeToIdleFromMove)
+            {
+                playerAnimator.fsm.TryChange<WalkState>(typeof(IdleState));
+            }
+            else if (playerAnimator.playerController.GetIsRunning
+                 && playerAnimator.playerController.GetIsGrounded)
+            {
+                playerAnimator.fsm.TryChange<WalkState>(typeof(RunState));
+            }
+            else if (playerAnimator.playerController.GetIsFalling)
+            {
+                playerAnimator.fsm.TryChange<WalkState>(typeof(FallState));
+            }
+        }
+
+        public void Exit()
+        {
+
+        }
+
+        public void OnAttack()
+        {
+            playerAnimator.fsm.TryChange<WalkState>(typeof(AttackState));
+        }
+        public void OnHurt()
+        {
+            playerAnimator.fsm.TryChange<WalkState>(typeof(HurtState));
+        }
+        public void OnJump()
+        {
+            playerAnimator.fsm.TryChange<WalkState>(typeof(JumpState));
+        }
+        public void OnDie()
+        {
+            playerAnimator.fsm.TryChange<WalkState>(typeof(DeadState));
+        }
+    }
+
+    private class RunState : IState
+    {
+        private PlayerAnimator playerAnimator;
+        private float timeStill = 0f;
+        public RunState(PlayerAnimator playerAnimator)
+        {
+            this.playerAnimator = playerAnimator;
+        }
+        public void Enter()
+        {
+            playerAnimator.playerAnimator.SetInteger(playerAnimator.controllerStateHash, 2);
+            timeStill = 0f;
+        }
+
+        public void Update()
+        {
+            if (playerAnimator.horizontalAxis > 0)
+            {
+                playerAnimator.FlipCharacter(false);
+            }
+            else if (playerAnimator.horizontalAxis < 0)
+            {
+                playerAnimator.FlipCharacter(true);
+            }
+
+            if (!playerAnimator.playerController.GetIsMoving
+                && playerAnimator.playerController.GetIsGrounded)
+            {
+                timeStill += Time.deltaTime;
+            }
+            else
+            {
+                timeStill = 0f;
+            }
+
+            if (timeStill >= playerAnimator.stillTimeToIdleFromMove)
+            {
+                playerAnimator.fsm.TryChange<RunState>(typeof(IdleState));
+            }
+            else if (playerAnimator.playerController.GetIsWalking
+                && playerAnimator.playerController.GetIsGrounded)
+            {
+                playerAnimator.fsm.TryChange<RunState>(typeof(WalkState));
+            }
+            else if (playerAnimator.playerController.GetIsFalling)
+            {
+                playerAnimator.fsm.TryChange<RunState>(typeof(FallState));
+            }
+        }
+
+        public void Exit()
+        {
+
+        }
+
+        public void OnAttack()
+        {
+            playerAnimator.fsm.TryChange<RunState>(typeof(AttackState));
+        }
+        public void OnHurt()
+        {
+            playerAnimator.fsm.TryChange<RunState>(typeof(HurtState));
+        }
+        public void OnJump()
+        {
+            playerAnimator.fsm.TryChange<RunState>(typeof(JumpState));
+        }
+        public void OnDie()
+        {
+            playerAnimator.fsm.TryChange<RunState>(typeof(DeadState));
+        }
+    }
+
+    private class FallState : IState
+    {
+        private PlayerAnimator playerAnimator;
+
+        public FallState(PlayerAnimator playerAnimator)
+        {
+            this.playerAnimator = playerAnimator;
+        }
+        public void Enter()
+        {
+            playerAnimator.playerAnimator.SetInteger(playerAnimator.controllerStateHash, 3);
+        }
+
+        public void Update()
+        {
+            if (playerAnimator.horizontalAxis > 0)
+            {
+                playerAnimator.FlipCharacter(false);
+            }
+            else if (playerAnimator.horizontalAxis < 0)
+            {
+                playerAnimator.FlipCharacter(true);
+            }
+
+            if (!playerAnimator.playerController.GetIsMoving
+                    && playerAnimator.playerController.GetIsGrounded)
+            {
+                playerAnimator.fsm.TryChange<FallState>(typeof(IdleState));
+            }
+            else if (playerAnimator.playerController.GetIsWalking
+                && playerAnimator.playerController.GetIsGrounded)
+            {
+                playerAnimator.fsm.TryChange<FallState>(typeof(WalkState));
+            }
+            else if (playerAnimator.playerController.GetIsRunning
+                 && playerAnimator.playerController.GetIsGrounded)
+            {
+                playerAnimator.fsm.TryChange<FallState>(typeof(RunState));
+            }
+        }
+
+        public void Exit()
+        {
+
+        }
+
+        public void OnAttack()
+        {
+            playerAnimator.fsm.TryChange<FallState>(typeof(AttackState));
+        }
+        public void OnHurt()
+        {
+            playerAnimator.fsm.TryChange<FallState>(typeof(HurtState));
+        }
+        public void OnJump()
+        {
+            playerAnimator.fsm.TryChange<FallState>(typeof(JumpState));
+        }
+        public void OnDie()
+        {
+            playerAnimator.fsm.TryChange<FallState>(typeof(DeadState));
+        }
+    }
+
+    private class AttackState : IState
+    {
+        private PlayerAnimator playerAnimator;
+
+        public AttackState(PlayerAnimator playerAnimator)
+        {
+            this.playerAnimator = playerAnimator;
+        }
+        public void Enter()
+        {
+            playerAnimator.playerAnimator.SetInteger(playerAnimator.controllerStateHash, 4);
+        }
+
+        public void Update()
+        {
+            if (playerAnimator.CurrentAnimationEnded(playerAnimator.attackAnimHash))
+            {
+                if (!playerAnimator.playerController.GetIsMoving
+                     && playerAnimator.playerController.GetIsGrounded)
+                {
+                    playerAnimator.fsm.TryChange<AttackState>(typeof(IdleState));
+                }
+                else if (playerAnimator.playerController.GetIsWalking
+                     && playerAnimator.playerController.GetIsGrounded)
+                {
+                    playerAnimator.fsm.TryChange<AttackState>(typeof(WalkState));
+                }
+                else if (playerAnimator.playerController.GetIsRunning
+                     && playerAnimator.playerController.GetIsGrounded)
+                {
+                    playerAnimator.fsm.TryChange<AttackState>(typeof(RunState));
+                }
+                else if (playerAnimator.playerController.GetIsFalling)
+                {
+                    playerAnimator.fsm.TryChange<AttackState>(typeof(FallState));
+                }
+            }
+        }
+
+        public void Exit()
+        {
+            playerAnimator.OnFinishAttack?.Invoke();
+        }
+
+        public void OnDie()
+        {
+            playerAnimator.fsm.TryChange<AttackState>(typeof(DeadState));
+        }
+    }
+
+    private class HurtState : IState
+    {
+        private PlayerAnimator playerAnimator;
+
+        public HurtState(PlayerAnimator playerAnimator)
+        {
+            this.playerAnimator = playerAnimator;
+        }
+        public void Enter()
+        {
+            playerAnimator.playerAnimator.SetInteger(playerAnimator.controllerStateHash, 5);
+        }
+
+        public void Update()
+        {
+            if (playerAnimator.horizontalAxis > 0)
+            {
+                playerAnimator.FlipCharacter(false);
+            }
+            else if (playerAnimator.horizontalAxis < 0)
+            {
+                playerAnimator.FlipCharacter(true);
+            }
+
+            if (playerAnimator.CurrentAnimationEnded(playerAnimator.hurtAnimHash))
+            {
+                if (!playerAnimator.playerController.GetIsMoving
+                     && playerAnimator.playerController.GetIsGrounded)
+                {
+                    playerAnimator.fsm.TryChange<HurtState>(typeof(IdleState));
+                }
+                else if (playerAnimator.playerController.GetIsWalking
+                     && playerAnimator.playerController.GetIsGrounded)
+                {
+                    playerAnimator.fsm.TryChange<HurtState>(typeof(WalkState));
+                }
+                else if (playerAnimator.playerController.GetIsRunning
+                     && playerAnimator.playerController.GetIsGrounded)
+                {
+                    playerAnimator.fsm.TryChange<HurtState>(typeof(RunState));
+                }
+                else if (playerAnimator.playerController.GetIsFalling)
+                {
+                    playerAnimator.fsm.TryChange<HurtState>(typeof(FallState));
+                }
+            }
+        }
+
+        public void Exit()
+        {
+
+        }
+
+        public void OnAttack()
+        {
+            playerAnimator.fsm.TryChange<HurtState>(typeof(AttackState));
+        }
+        public void OnJump()
+        {
+            playerAnimator.fsm.TryChange<HurtState>(typeof(JumpState));
+        }
+        public void OnDie()
+        {
+            playerAnimator.fsm.TryChange<HurtState>(typeof(DeadState));
+        }
+    }
+
+    private class JumpState : IState
+    {
+        private PlayerAnimator playerAnimator;
+
+        public JumpState(PlayerAnimator playerAnimator)
+        {
+            this.playerAnimator = playerAnimator;
+        }
+        public void Enter()
+        {
+            playerAnimator.playerAnimator.SetInteger(playerAnimator.controllerStateHash, 6);
+        }
+
+        public void Update()
+        {
+            if (playerAnimator.horizontalAxis > 0)
+            {
+                playerAnimator.FlipCharacter(false);
+            }
+            else if (playerAnimator.horizontalAxis < 0)
+            {
+                playerAnimator.FlipCharacter(true);
+            }
+
+            if (playerAnimator.playerController.GetIsFalling)
+            {
+                playerAnimator.fsm.TryChange<JumpState>(typeof(FallState));
+            }
+        }
+
+        public void Exit()
+        {
+
+        }
+
+        public void OnAttack()
+        {
+            playerAnimator.fsm.TryChange<JumpState>(typeof(AttackState));
+        }
+        public void OnHurt()
+        {
+            playerAnimator.fsm.TryChange<JumpState>(typeof(HurtState));
+        }
+        public void OnDie()
+        {
+            playerAnimator.fsm.TryChange<JumpState>(typeof(DeadState));
+        }
+    }
+
+    private class DeadState : IState
+    {
+        private PlayerAnimator playerAnimator;
+
+        public DeadState(PlayerAnimator playerAnimator)
+        {
+            this.playerAnimator = playerAnimator;
+        }
+        public void Enter()
+        {
+            playerAnimator.playerAnimator.SetInteger(playerAnimator.controllerStateHash, 7);
+        }
+
+        public void Update()
+        {
+
+        }
+
+        public void Exit()
+        {
+
+        }
+    }
+}
