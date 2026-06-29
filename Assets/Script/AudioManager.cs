@@ -8,10 +8,13 @@ public class AudioManager
 
     private AudioMixer audioMixer;
     private AudioSource buttonPressedSound;
+    private AudioSource gameplayMusic;
 
     private const float initialMasterVolume = 1f;
     private const float initialSfxVolume = 1f;
     private const float initialMusicVolume = 1f;
+
+    private const float gameplayMusicVolume = 0.1f;
 
     private string wasGameOpenedBefore = "WasGameOpenedBefore";
     private const string masterVolumeKey = "MasterVolume";
@@ -25,12 +28,15 @@ public class AudioManager
     public float MasterVolume { get { return masterVolume; } set { masterVolume = value; audioMixer.SetFloat(masterVolumeKey, LinearToDecibel(masterVolume)); SaveConfig(); } }
     public float SfxVolume { get { return sfxVolume; } set { sfxVolume = value; audioMixer.SetFloat(sfxVolumeKey, LinearToDecibel(sfxVolume)); SaveConfig(); } }
     public float MusicVolume { get { return musicVolume; } set { musicVolume = value; audioMixer.SetFloat(musicVolumeKey, LinearToDecibel(musicVolume)); SaveConfig(); } }
-    public AudioSource ButtonPressedSound { get { return buttonPressedSound; } private set { } }
+    public AudioSource GetButtonPressedSound { get { return buttonPressedSound; } }
+    public AudioSource GetGameplayMusic { get { return gameplayMusic; } }
 
-    public AudioManager(AudioMixer audioMixer, AudioSource buttonPressedSound)
+    public AudioManager(AudioMixer audioMixer, AudioSource buttonPressedSound, AudioSource gameplayMusic)
     {
         this.audioMixer = audioMixer;
         this.buttonPressedSound = buttonPressedSound;
+        this.gameplayMusic = gameplayMusic;
+        gameplayMusic.volume = gameplayMusicVolume;
 
         if (PlayerPrefs.HasKey(wasGameOpenedBefore))
         {

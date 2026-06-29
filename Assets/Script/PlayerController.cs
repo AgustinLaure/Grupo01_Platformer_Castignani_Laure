@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
     private const float epsilon = 1e-06f;
 
     private bool isGrounded = false;
+    private bool isTouchingWall = false;
     private bool tryJump = false;
 
     private MoveState moveState = MoveState.None;
@@ -27,11 +28,12 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private float jumpImpulse;
 
-    [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Player player;
     [SerializeField] private LayerMask environmentLayer;
     [SerializeField] private GameObject attackArea;
-    [SerializeField] private PlayerAnimator playerAnimator;
+
+    private PlayerAnimator playerAnimator;
+    private Rigidbody2D rb;
 
     private const ForceMode2D horizontalMoveForce = ForceMode2D.Force;
     private const ForceMode2D jumpMoveForce = ForceMode2D.Impulse;
@@ -44,15 +46,24 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject groundCheck;
     [SerializeField] private Vector2 groundCheckSize;
 
+    [SerializeField] private Vector2 wallCheckSize;
+    [SerializeField] private Vector2 wallCheckOffset;
+
     private float horizontalAxis = 0f;
     private float prevHorizontalAxis = 0f;
 
     public bool GetIsGrounded { get { return isGrounded; } }
-    public bool GetIsFalling { get { return rb.linearVelocityY < 0f; } }
+    public bool GetIsFalling { get { return rb.linearVelocityY < -0.1f && !isGrounded; } }
     public bool GetIsMoving { get { return horizontalAxis > epsilon || horizontalAxis < -epsilon; } }
     public bool GetIsWalking { get { return GetIsMoving && !Input.GetButton("Run"); } }
     public bool GetIsRunning { get { return GetIsMoving && Input.GetButton("Run"); } }
     public float GetHorizontalAxis { get { return horizontalAxis; } }
+
+    private void Awake()
+    {
+        playerAnimator = gameObject.GetComponent<PlayerAnimator>();
+        rb = gameObject.GetComponent<Rigidbody2D>();
+    }
 
     private void Start()
     {
@@ -60,13 +71,14 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
-        if (!player.IsDead)
+        isGrounded = Physics2D.OverlapBox(groundCheck.transform.position, groundCheckSize, transform.rotation.eulerAngles.z, environmentLayer);
+        isTouchingWall = Physics2D.OverlapBox(gameObject.transform.position + new Vector3(horizontalAxis * wallCheckOffset.x, wallCheckOffset.y, 0f), wallCheckSize, 0f, environmentLayer);
+
+        UpdateMoveState();
+
+        if (player.CanMove)
         {
             horizontalAxis = Input.GetAxisRaw("Horizontal");
-
-            UpdateMoveState();
-
-            isGrounded = Physics2D.OverlapBox(groundCheck.transform.position, groundCheckSize, transform.rotation.eulerAngles.z, environmentLayer);
 
             if (Input.GetButtonDown("Jump") && isGrounded)
             {
@@ -83,7 +95,7 @@ public class PlayerController : MonoBehaviour
 
             if (Input.GetButtonDown("Pause"))
             {
-                OnPlayerPause?.Invoke(); 
+                OnPlayerPause?.Invoke();
             }
         }
     }
@@ -158,28 +170,35 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (Mathf.Abs(horizontalAxis) < epsilon &&
-            Mathf.Abs(horizontalAxis - prevHorizontalAxis) > epsilon)
+        if (player.CanMove)
         {
-            AddStopForce();
+            if (Mathf.Abs(horizontalAxis) < epsilon &&
+                Mathf.Abs(horizontalAxis - prevHorizontalAxis) > epsilon)
+            {
+                AddStopForce();
+            }
+            else if (!isTouchingWall)
+            {
+                float horizontalMove = horizontalAxis * acceleration;
+
+                float velocityDist = terminalVelocity - rb.linearVelocityX * Mathf.Sign(horizontalMove);
+
+                float maxPossibleAccel = (velocityDist * rb.mass) / Time.fixedDeltaTime;
+
+                horizontalMove = Mathf.Clamp(Mathf.Abs(horizontalMove), 0f, maxPossibleAccel) * Mathf.Sign(horizontalMove);
+
+                rb.AddForce(new Vector2(horizontalMove, 0f), horizontalMoveForce);
+            }
+
+            if (tryJump)
+            {
+                rb.AddForce(new Vector2(0f, jumpImpulse), jumpMoveForce);
+                tryJump = false;
+            }
         }
         else
         {
-            float horizontalMove = horizontalAxis * acceleration;
-
-            float velocityDist = terminalVelocity - rb.linearVelocityX * Mathf.Sign(horizontalMove);
-
-            float maxPossibleAccel = (velocityDist * rb.mass) / Time.fixedDeltaTime;
-
-            horizontalMove = Mathf.Clamp(Mathf.Abs(horizontalMove), 0f, maxPossibleAccel) * Mathf.Sign(horizontalMove);
-
-            rb.AddForce(new Vector2(horizontalMove, 0f), horizontalMoveForce);
-        }
-
-        if (tryJump)
-        {
-            rb.AddForce(new Vector2(0f, jumpImpulse), jumpMoveForce);
-            tryJump = false;
+            rb.linearVelocityX = 0f;
         }
 
         prevHorizontalAxis = horizontalAxis;
@@ -205,6 +224,7 @@ public class PlayerController : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireCube(groundCheck.transform.position, groundCheckSize);
+        Gizmos.DrawWireCube(gameObject.transform.position + new Vector3(horizontalAxis * wallCheckOffset.x, wallCheckOffset.y, 0f), wallCheckSize);
     }
     private void OnDestroy()
     {

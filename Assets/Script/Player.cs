@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -5,48 +6,49 @@ public class Player : MonoBehaviour
     private HealthPoints healthPoints;
 
     [SerializeField] private AreaTrigger attackAreaTrigger;
+    [SerializeField] private AudioSource jumpSound;
+    [SerializeField] private AudioSource dieSound;
 
     [SerializeField] private float damage;
     [SerializeField] private float initialCurrentHealth;
     [SerializeField] private float initialMaxHealth;
 
-    private bool isDead = false;
+    private PlayerController controller;
+
+    private bool canMove = true;
 
     public HealthPoints GetHealthPoints { get { return healthPoints; } }
-    public bool IsDead { get { return isDead; } }
+    
+    public bool CanMove { get { return canMove; } set { canMove = value; } }
 
     private void Awake()
     {
         healthPoints = new HealthPoints(initialCurrentHealth, initialMaxHealth);
 
+        controller = GetComponent<PlayerController>();
+
+        controller.OnPlayerJump += HandleJump;
         healthPoints.OnDie += HandleDie;
         attackAreaTrigger.OnTrigger += HandleAttackAreaTrigger;
-    }
-    void Start()
-    {
-
-    }
-
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.K))
-        {
-            healthPoints.TakeDamage(5f);
-        }
-
-        Debug.Log("Health: " + healthPoints.GetCurrentHealth + " / " + healthPoints.GetMaxHealth);
     }
 
     private void HandleAttackAreaTrigger(Collider2D collider)
     {
         //Hit enemy logic
     }
+
     private void HandleDie()
     {
-        isDead = true;
+        dieSound.Play();
     }
+    private void HandleJump()
+    {
+        jumpSound.Play();
+    }
+
     private void OnDestroy()
     {
+        controller.OnPlayerJump += HandleJump;
         healthPoints.OnDie -= HandleDie;
         attackAreaTrigger.OnTrigger -= HandleAttackAreaTrigger;
     }

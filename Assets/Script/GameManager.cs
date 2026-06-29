@@ -2,7 +2,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private Player player;
@@ -16,6 +15,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private CanvasGroup endScreenCanvasGroup;
     [SerializeField] private Button endScreenContinueButton;
     [SerializeField] private Button endScreenMainMenuButton;
+
+    [SerializeField] private AudioSource winSound;
 
     private const string loseText = "You lost!";
     private const string winText = "You win!";
@@ -36,6 +37,11 @@ public class GameManager : MonoBehaviour
     }
     private void Start()
     {
+        if (!ServiceLocator.Instance.GetService<AudioManager>().GetGameplayMusic.isPlaying)
+        {
+            ServiceLocator.Instance.GetService<AudioManager>().GetGameplayMusic.Play();
+        }
+
         playerController = player.GetComponent<PlayerController>();
         winConditionTrigger = winCondition.GetComponent<AreaTrigger>();
 
@@ -76,17 +82,18 @@ public class GameManager : MonoBehaviour
     {
         UiUtils.SetCanvasActive(endScreenCanvasGroup, true);
 
-        Time.timeScale = 0f;
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
         endScreenTitleText.text = hasLost ? loseText : winText;
+
+        player.CanMove = false;
     }
 
     private void HandlePlayerDeath()
     {
         hasLost = true;
-
+        
         EndGame();
     }
 
@@ -95,6 +102,7 @@ public class GameManager : MonoBehaviour
         if (collider.CompareTag("Player"))
         {
             EndGame();
+            winSound.Play();
         }
     }
 
@@ -105,15 +113,19 @@ public class GameManager : MonoBehaviour
 
     private void HandleResumeButtonClick()
     {
+        ServiceLocator.Instance.GetService<AudioManager>().GetButtonPressedSound.Play();
         SetPause(false);
     }
 
     private void HandleMainMenuButtonClick()
     {
-
+        ServiceLocator.Instance.GetService<AudioManager>().GetButtonPressedSound.Play();
+        ServiceLocator.Instance.GetService<AudioManager>().GetGameplayMusic.Pause();
+        SceneManager.LoadScene("MainMenu");
     }
     private void HandleContinueButtonClick()
     {
+        ServiceLocator.Instance.GetService<AudioManager>().GetButtonPressedSound.Play();
         SceneManager.LoadScene("Gameplay");
     }
 }

@@ -48,7 +48,7 @@ public class MainMenu : MonoBehaviour
     private void HandleTitlePlayButtonClick()
     {
         SceneManager.LoadScene("Gameplay");
-        ServiceLocator.Instance.GetService<AudioManager>().ButtonPressedSound.Play();
+        ServiceLocator.Instance.GetService<AudioManager>().GetButtonPressedSound.Play();
     }
 
     private void HandleTitleSettingsButtonClick()
@@ -56,7 +56,7 @@ public class MainMenu : MonoBehaviour
         UiUtils.SetCanvasActive(titleScreenCanvasGroup, false);
         UiUtils.SetCanvasActive(settingsScreenCanvasGroup, true);
 
-        ServiceLocator.Instance.GetService<AudioManager>().ButtonPressedSound.Play();
+        ServiceLocator.Instance.GetService<AudioManager>().GetButtonPressedSound.Play();
     }
 
     private void HandleTitleCreditsButtonClick()
@@ -64,7 +64,7 @@ public class MainMenu : MonoBehaviour
         UiUtils.SetCanvasActive(titleScreenCanvasGroup, false);
         UiUtils.SetCanvasActive(creditsScreenCanvasGroup, true);
 
-        ServiceLocator.Instance.GetService<AudioManager>().ButtonPressedSound.Play();
+        ServiceLocator.Instance.GetService<AudioManager>().GetButtonPressedSound.Play();
     }
 
     private void HandleCreditsBackButtonClick()
@@ -72,7 +72,7 @@ public class MainMenu : MonoBehaviour
         UiUtils.SetCanvasActive(titleScreenCanvasGroup, true);
         UiUtils.SetCanvasActive(creditsScreenCanvasGroup, false);
 
-        ServiceLocator.Instance.GetService<AudioManager>().ButtonPressedSound.Play();
+        ServiceLocator.Instance.GetService<AudioManager>().GetButtonPressedSound.Play();
     }
 
     private void HandleSettingsBackButtonClick()
@@ -80,12 +80,12 @@ public class MainMenu : MonoBehaviour
         UiUtils.SetCanvasActive(titleScreenCanvasGroup, true);
         UiUtils.SetCanvasActive(settingsScreenCanvasGroup, false);
 
-        ServiceLocator.Instance.GetService<AudioManager>().ButtonPressedSound.Play();
+        ServiceLocator.Instance.GetService<AudioManager>().GetButtonPressedSound.Play();
     }
 
     private void HandleTitleExitButtonClick()
     {
-        ServiceLocator.Instance.GetService<AudioManager>().ButtonPressedSound.Play();
+        ServiceLocator.Instance.GetService<AudioManager>().GetButtonPressedSound.Play();
 
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
