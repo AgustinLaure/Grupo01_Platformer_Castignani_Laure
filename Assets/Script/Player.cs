@@ -6,10 +6,14 @@ public class Player : MonoBehaviour
     private HealthPoints healthPoints;
 
     [SerializeField] private AreaTrigger attackAreaTrigger;
+    [SerializeField] private AudioSource jumpSound;
+    [SerializeField] private AudioSource dieSound;
 
     [SerializeField] private float damage;
     [SerializeField] private float initialCurrentHealth;
     [SerializeField] private float initialMaxHealth;
+
+    private PlayerController controller;
 
     private bool canMove = true;
 
@@ -21,6 +25,9 @@ public class Player : MonoBehaviour
     {
         healthPoints = new HealthPoints(initialCurrentHealth, initialMaxHealth);
 
+        controller = GetComponent<PlayerController>();
+
+        controller.OnPlayerJump += HandleJump;
         healthPoints.OnDie += HandleDie;
         attackAreaTrigger.OnTrigger += HandleAttackAreaTrigger;
     }
@@ -29,12 +36,19 @@ public class Player : MonoBehaviour
     {
         //Hit enemy logic
     }
+
     private void HandleDie()
     {
-
+        dieSound.Play();
     }
+    private void HandleJump()
+    {
+        jumpSound.Play();
+    }
+
     private void OnDestroy()
     {
+        controller.OnPlayerJump += HandleJump;
         healthPoints.OnDie -= HandleDie;
         attackAreaTrigger.OnTrigger -= HandleAttackAreaTrigger;
     }
