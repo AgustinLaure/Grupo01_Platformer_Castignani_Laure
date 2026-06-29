@@ -2,7 +2,6 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
-
 public class GameManager : MonoBehaviour
 {
     [SerializeField] private Player player;
@@ -105,15 +104,18 @@ public class GameManager : MonoBehaviour
 
     private void HandleResumeButtonClick()
     {
+        ServiceLocator.Instance.GetService<AudioManager>().ButtonPressedSound.Play();
         SetPause(false);
     }
 
     private void HandleMainMenuButtonClick()
     {
-
+        ServiceLocator.Instance.GetService<AudioManager>().ButtonPressedSound.Play();
+        SceneManager.LoadScene("MainMenu");
     }
     private void HandleContinueButtonClick()
     {
+        ServiceLocator.Instance.GetService<AudioManager>().ButtonPressedSound.Play();
         SceneManager.LoadScene("Gameplay");
     }
 }
