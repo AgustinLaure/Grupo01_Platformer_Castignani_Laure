@@ -53,7 +53,7 @@ public class PlayerController : MonoBehaviour
     private float prevHorizontalAxis = 0f;
 
     public bool GetIsGrounded { get { return isGrounded; } }
-    public bool GetIsFalling { get { return rb.linearVelocityY < 0f; } }
+    public bool GetIsFalling { get { return rb.linearVelocityY < -0.1f && !isGrounded; } }
     public bool GetIsMoving { get { return horizontalAxis > epsilon || horizontalAxis < -epsilon; } }
     public bool GetIsWalking { get { return GetIsMoving && !Input.GetButton("Run"); } }
     public bool GetIsRunning { get { return GetIsMoving && Input.GetButton("Run"); } }

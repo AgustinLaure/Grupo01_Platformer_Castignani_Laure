@@ -571,7 +571,7 @@ MonoBehaviour:
   runTerminalVelocity: 6
   groundCheck: {fileID: 950416432635453081}
   groundCheckSize: {x: 0.75, y: 0.04}
-  wallCheckSize: {x: 0.64, y: 1.01}
+  wallCheckSize: {x: 0.64, y: 1.13}
   wallCheckOffset: {x: 0.25, y: 0.09}
 --- !u!114 &2885574476845857708
 MonoBehaviour:
