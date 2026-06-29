@@ -33,17 +33,16 @@ public class PlayerAnimator : MonoBehaviour
 
     private void Awake()
     {
-        playerController = gameObject.GetComponent<PlayerController>();
-        playerRb = gameObject.GetComponent<Rigidbody2D>();
-        playerAnimator = playerRender.GetComponent<Animator>();
-        playerSpriteRenderer = playerRender.GetComponent<SpriteRenderer>();
-
         controllerStateHash = Animator.StringToHash(controllerStateVarName);
         attackAnimHash = Animator.StringToHash(attackStateName);
         hurtAnimHash = Animator.StringToHash(hurtStateName);
     }
     private void Start()
     {
+        playerAnimator = playerRender.GetComponent<Animator>();
+        playerSpriteRenderer = playerRender.GetComponent<SpriteRenderer>();
+        playerController = gameObject.GetComponent<PlayerController>();
+        playerRb = gameObject.GetComponent<Rigidbody2D>();
         playerHealthPoints = gameObject.GetComponent<Player>().GetHealthPoints;
 
         IdleState idleState = new IdleState(this);
