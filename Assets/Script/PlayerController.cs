@@ -88,10 +88,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void OnDestroy()
-    {
-        playerAnimator.OnFinishAttack -= HandleOnFinishAttack;
-    }
+    
 
     private void UpdateMoveState()
     {
@@ -211,5 +208,9 @@ public class PlayerController : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireCube(groundCheck.transform.position, groundCheckSize);
+    }
+    private void OnDestroy()
+    {
+        playerAnimator.OnFinishAttack -= HandleOnFinishAttack;
     }
 }

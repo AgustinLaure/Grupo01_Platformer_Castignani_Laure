@@ -37,12 +37,6 @@ public class Player : MonoBehaviour
         Debug.Log("Health: " + healthPoints.GetCurrentHealth + " / " + healthPoints.GetMaxHealth);
     }
 
-    private void OnDestroy()
-    {
-        healthPoints.OnDie -= HandleDie;
-        attackAreaTrigger.OnTrigger -= HandleAttackAreaTrigger;
-    }
-
     private void HandleAttackAreaTrigger(Collider2D collider)
     {
         //Hit enemy logic
@@ -50,5 +44,10 @@ public class Player : MonoBehaviour
     private void HandleDie()
     {
         isDead = true;
+    }
+    private void OnDestroy()
+    {
+        healthPoints.OnDie -= HandleDie;
+        attackAreaTrigger.OnTrigger -= HandleAttackAreaTrigger;
     }
 }
