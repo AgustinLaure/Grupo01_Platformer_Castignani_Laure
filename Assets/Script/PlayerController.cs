@@ -98,8 +98,6 @@ public class PlayerController : MonoBehaviour
                 OnPlayerPause?.Invoke();
             }
         }
-
-        Debug.Log(isTouchingWall);
     }
     private void UpdateMoveState()
     {
@@ -172,28 +170,35 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (Mathf.Abs(horizontalAxis) < epsilon &&
-            Mathf.Abs(horizontalAxis - prevHorizontalAxis) > epsilon)
+        if (!player.IsDead)
         {
-            AddStopForce();
+            if (Mathf.Abs(horizontalAxis) < epsilon &&
+                Mathf.Abs(horizontalAxis - prevHorizontalAxis) > epsilon)
+            {
+                AddStopForce();
+            }
+            else if (!isTouchingWall)
+            {
+                float horizontalMove = horizontalAxis * acceleration;
+
+                float velocityDist = terminalVelocity - rb.linearVelocityX * Mathf.Sign(horizontalMove);
+
+                float maxPossibleAccel = (velocityDist * rb.mass) / Time.fixedDeltaTime;
+
+                horizontalMove = Mathf.Clamp(Mathf.Abs(horizontalMove), 0f, maxPossibleAccel) * Mathf.Sign(horizontalMove);
+
+                rb.AddForce(new Vector2(horizontalMove, 0f), horizontalMoveForce);
+            }
+
+            if (tryJump)
+            {
+                rb.AddForce(new Vector2(0f, jumpImpulse), jumpMoveForce);
+                tryJump = false;
+            }
         }
-        else if (!isTouchingWall)
+        else
         {
-            float horizontalMove = horizontalAxis * acceleration;
-
-            float velocityDist = terminalVelocity - rb.linearVelocityX * Mathf.Sign(horizontalMove);
-
-            float maxPossibleAccel = (velocityDist * rb.mass) / Time.fixedDeltaTime;
-
-            horizontalMove = Mathf.Clamp(Mathf.Abs(horizontalMove), 0f, maxPossibleAccel) * Mathf.Sign(horizontalMove);
-
-            rb.AddForce(new Vector2(horizontalMove, 0f), horizontalMoveForce);
-        }
-
-        if (tryJump)
-        {
-            rb.AddForce(new Vector2(0f, jumpImpulse), jumpMoveForce);
-            tryJump = false;
+            rb.linearVelocityX = 0f;
         }
 
         prevHorizontalAxis = horizontalAxis;

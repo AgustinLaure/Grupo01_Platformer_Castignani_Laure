@@ -75,7 +75,6 @@ public class GameManager : MonoBehaviour
     {
         UiUtils.SetCanvasActive(endScreenCanvasGroup, true);
 
-        Time.timeScale = 0f;
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
 
