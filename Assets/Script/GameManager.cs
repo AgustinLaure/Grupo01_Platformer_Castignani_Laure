@@ -84,12 +84,14 @@ public class GameManager : MonoBehaviour
         Cursor.lockState = CursorLockMode.None;
 
         endScreenTitleText.text = hasLost ? loseText : winText;
+
+        player.CanMove = false;
     }
 
     private void HandlePlayerDeath()
     {
         hasLost = true;
-
+        
         EndGame();
     }
 

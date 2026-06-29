@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class Player : MonoBehaviour
@@ -10,10 +11,11 @@ public class Player : MonoBehaviour
     [SerializeField] private float initialCurrentHealth;
     [SerializeField] private float initialMaxHealth;
 
-    private bool isDead = false;
+    private bool canMove = true;
 
     public HealthPoints GetHealthPoints { get { return healthPoints; } }
-    public bool IsDead { get { return isDead; } }
+    
+    public bool CanMove { get { return canMove; } set { canMove = value; } }
 
     private void Awake()
     {
@@ -29,7 +31,7 @@ public class Player : MonoBehaviour
     }
     private void HandleDie()
     {
-        isDead = true;
+
     }
     private void OnDestroy()
     {

@@ -20,7 +20,6 @@ public static class BootStrapper
 
         AudioSource gameplayMusic = audioManagerObject.AddComponent<AudioSource>();
         gameplayMusic.clip = Resources.Load<AudioClip>("GameplayMusic");
-        gameplayMusic.loop = true;
 
         AudioMixerGroup[] musicGroups = audioMixer.FindMatchingGroups("Music");
         gameplayMusic.outputAudioMixerGroup = musicGroups[0];
