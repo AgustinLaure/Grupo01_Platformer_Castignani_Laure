@@ -35,6 +35,11 @@ public class GameManager : MonoBehaviour
     }
     private void Start()
     {
+        if (!ServiceLocator.Instance.GetService<AudioManager>().GetGameplayMusic.isPlaying)
+        {
+            ServiceLocator.Instance.GetService<AudioManager>().GetGameplayMusic.Play();
+        }
+
         playerController = player.GetComponent<PlayerController>();
         winConditionTrigger = winCondition.GetComponent<AreaTrigger>();
 
@@ -103,18 +108,19 @@ public class GameManager : MonoBehaviour
 
     private void HandleResumeButtonClick()
     {
-        ServiceLocator.Instance.GetService<AudioManager>().ButtonPressedSound.Play();
+        ServiceLocator.Instance.GetService<AudioManager>().GetButtonPressedSound.Play();
         SetPause(false);
     }
 
     private void HandleMainMenuButtonClick()
     {
-        ServiceLocator.Instance.GetService<AudioManager>().ButtonPressedSound.Play();
+        ServiceLocator.Instance.GetService<AudioManager>().GetButtonPressedSound.Play();
+        ServiceLocator.Instance.GetService<AudioManager>().GetGameplayMusic.Pause();
         SceneManager.LoadScene("MainMenu");
     }
     private void HandleContinueButtonClick()
     {
-        ServiceLocator.Instance.GetService<AudioManager>().ButtonPressedSound.Play();
+        ServiceLocator.Instance.GetService<AudioManager>().GetButtonPressedSound.Play();
         SceneManager.LoadScene("Gameplay");
     }
 }
