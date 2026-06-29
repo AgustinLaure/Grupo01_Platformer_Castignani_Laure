@@ -71,10 +71,14 @@ public class PlayerController : MonoBehaviour
     }
     private void Update()
     {
+        isGrounded = Physics2D.OverlapBox(groundCheck.transform.position, groundCheckSize, transform.rotation.eulerAngles.z, environmentLayer);
+        isTouchingWall = Physics2D.OverlapBox(gameObject.transform.position + new Vector3(horizontalAxis * wallCheckOffset.x, wallCheckOffset.y, 0f), wallCheckSize, 0f, environmentLayer);
+
+        UpdateMoveState();
+
         if (player.CanMove)
         {
             horizontalAxis = Input.GetAxisRaw("Horizontal");
-
 
             if (Input.GetButtonDown("Jump") && isGrounded)
             {
@@ -94,10 +98,6 @@ public class PlayerController : MonoBehaviour
                 OnPlayerPause?.Invoke();
             }
         }
-        UpdateMoveState();
-
-        isGrounded = Physics2D.OverlapBox(groundCheck.transform.position, groundCheckSize, transform.rotation.eulerAngles.z, environmentLayer);
-        isTouchingWall = Physics2D.OverlapBox(gameObject.transform.position + new Vector3(horizontalAxis * wallCheckOffset.x, wallCheckOffset.y, 0f), wallCheckSize, 0f, environmentLayer);
     }
     private void UpdateMoveState()
     {
