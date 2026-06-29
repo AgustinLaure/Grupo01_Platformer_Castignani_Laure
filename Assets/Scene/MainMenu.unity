@@ -1510,9 +1510,9 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Art: "Character - Luiz Melo (Asset Store)", "Interface Sound - kenney",
-    "Gem - FerroEntertainment (Asset Store), "Music - marcelofernandezmusic (Itch.io),
-    "UI Art - dogobongocat (Itchio)" '
+  m_text: 'Art: "Character - Luiz Melo (Asset Store)", "UI - kenney", "Gem - FerroEntertainment
+    (Asset Store), "Music - marcelofernandezmusic (Itch.io), "UI Art - dogobongocat
+    (Itchio)" '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -2164,7 +2164,7 @@ CanvasGroup:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 974139920}
   m_Enabled: 1
-  m_Alpha: 1
+  m_Alpha: 0
   m_Interactable: 0
   m_BlocksRaycasts: 0
   m_IgnoreParentGroups: 0
@@ -2350,8 +2350,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: d9010b63954a39640b0e7665960e5103, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
