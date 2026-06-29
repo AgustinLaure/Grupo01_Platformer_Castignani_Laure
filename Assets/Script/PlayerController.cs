@@ -16,6 +16,7 @@ public class PlayerController : MonoBehaviour
     private const float epsilon = 1e-06f;
 
     private bool isGrounded = false;
+    private bool isTouchingWall = false;
     private bool tryJump = false;
 
     private MoveState moveState = MoveState.None;
@@ -27,11 +28,12 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private float jumpImpulse;
 
-    [SerializeField] private Rigidbody2D rb;
     [SerializeField] private Player player;
     [SerializeField] private LayerMask environmentLayer;
     [SerializeField] private GameObject attackArea;
-    [SerializeField] private PlayerAnimator playerAnimator;
+
+    private PlayerAnimator playerAnimator;
+    private Rigidbody2D rb;
 
     private const ForceMode2D horizontalMoveForce = ForceMode2D.Force;
     private const ForceMode2D jumpMoveForce = ForceMode2D.Impulse;
@@ -44,6 +46,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private GameObject groundCheck;
     [SerializeField] private Vector2 groundCheckSize;
 
+    [SerializeField] private Vector2 wallCheckSize;
+    [SerializeField] private Vector2 wallCheckOffset;
+
     private float horizontalAxis = 0f;
     private float prevHorizontalAxis = 0f;
 
@@ -53,6 +58,12 @@ public class PlayerController : MonoBehaviour
     public bool GetIsWalking { get { return GetIsMoving && !Input.GetButton("Run"); } }
     public bool GetIsRunning { get { return GetIsMoving && Input.GetButton("Run"); } }
     public float GetHorizontalAxis { get { return horizontalAxis; } }
+
+    private void Awake()
+    {
+        playerAnimator = gameObject.GetComponent<PlayerAnimator>();
+        rb = gameObject.GetComponent<Rigidbody2D>();
+    }
 
     private void Start()
     {
@@ -67,6 +78,7 @@ public class PlayerController : MonoBehaviour
             UpdateMoveState();
 
             isGrounded = Physics2D.OverlapBox(groundCheck.transform.position, groundCheckSize, transform.rotation.eulerAngles.z, environmentLayer);
+            isTouchingWall = Physics2D.OverlapBox(gameObject.transform.position + new Vector3(horizontalAxis * wallCheckOffset.x, wallCheckOffset.y, 0f), wallCheckSize, 0f, environmentLayer);
 
             if (Input.GetButtonDown("Jump") && isGrounded)
             {
@@ -83,9 +95,11 @@ public class PlayerController : MonoBehaviour
 
             if (Input.GetButtonDown("Pause"))
             {
-                OnPlayerPause?.Invoke(); 
+                OnPlayerPause?.Invoke();
             }
         }
+
+        Debug.Log(isTouchingWall);
     }
     private void UpdateMoveState()
     {
@@ -163,7 +177,7 @@ public class PlayerController : MonoBehaviour
         {
             AddStopForce();
         }
-        else
+        else if (!isTouchingWall)
         {
             float horizontalMove = horizontalAxis * acceleration;
 
@@ -205,6 +219,7 @@ public class PlayerController : MonoBehaviour
     {
         Gizmos.color = Color.red;
         Gizmos.DrawWireCube(groundCheck.transform.position, groundCheckSize);
+        Gizmos.DrawWireCube(gameObject.transform.position + new Vector3(horizontalAxis * wallCheckOffset.x, wallCheckOffset.y, 0f), wallCheckSize);
     }
     private void OnDestroy()
     {

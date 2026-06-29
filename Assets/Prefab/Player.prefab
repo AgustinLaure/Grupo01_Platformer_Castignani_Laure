@@ -483,7 +483,7 @@ BoxCollider2D:
   m_Enabled: 1
   serializedVersion: 3
   m_Density: 1
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 0fbdc69d800d69242b56455902c98529, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -562,17 +562,17 @@ MonoBehaviour:
   walkAcceleration: 80
   runAcceleration: 100
   jumpImpulse: 8
-  rb: {fileID: -2057887317093938310}
   player: {fileID: 6915439413308225305}
   environmentLayer:
     serializedVersion: 2
     m_Bits: 64
   attackArea: {fileID: 402455541267020779}
-  playerAnimator: {fileID: 2885574476845857708}
   walkTerminalVelocity: 4
   runTerminalVelocity: 6
   groundCheck: {fileID: 950416432635453081}
   groundCheckSize: {x: 0.75, y: 0.04}
+  wallCheckSize: {x: 0.64, y: 1.01}
+  wallCheckOffset: {x: 0.25, y: 0.09}
 --- !u!114 &2885574476845857708
 MonoBehaviour:
   m_ObjectHideFlags: 0
