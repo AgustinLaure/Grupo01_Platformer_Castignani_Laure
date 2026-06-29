@@ -16,6 +16,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private Button endScreenContinueButton;
     [SerializeField] private Button endScreenMainMenuButton;
 
+    [SerializeField] private AudioSource winSound;
+
     private const string loseText = "You lost!";
     private const string winText = "You win!";
 
@@ -100,6 +102,7 @@ public class GameManager : MonoBehaviour
         if (collider.CompareTag("Player"))
         {
             EndGame();
+            winSound.Play();
         }
     }
 
