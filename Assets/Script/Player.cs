@@ -43,7 +43,7 @@ public class Player : MonoBehaviour
         attackAreaTrigger.OnTrigger -= HandleAttackAreaTrigger;
     }
 
-    private void HandleAttackAreaTrigger()
+    private void HandleAttackAreaTrigger(Collider2D collider)
     {
         //Hit enemy logic
     }
